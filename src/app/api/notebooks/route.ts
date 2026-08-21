@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabaseAdmin
     .from("notebooks")
     .insert({
+      categoria: body.categoria ?? "Notebook",
       nombre: body.nombre,
       marca: body.marca,
       modelo: body.modelo ?? "",
@@ -31,6 +32,11 @@ export async function POST(request: NextRequest) {
       pantalla: body.pantalla ?? "",
       sistema_operativo: body.sistema_operativo ?? "Windows 11",
       estado_bateria: body.estado_bateria ?? "Buena",
+      placa_video: body.placa_video ?? "",
+      joysticks_incluidos: body.joysticks_incluidos ?? "",
+      juegos_incluidos: body.juegos_incluidos ?? "",
+      tasa_refresco: body.tasa_refresco ?? "",
+      tipo_panel: body.tipo_panel ?? "",
       estado_estetico: body.estado_estetico ?? "Bueno (detalles carcasa)",
       precio: body.precio,
       moneda: body.moneda ?? "ARS",

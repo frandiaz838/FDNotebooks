@@ -2,12 +2,14 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { PillSelect } from "@/components/PillSelect";
+import { CATEGORIAS } from "@/lib/categorias";
 
 export function Filters({ marcas }: { marcas: string[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const marca = searchParams.get("marca") ?? "";
+  const categoria = searchParams.get("categoria") ?? "";
   const orden = searchParams.get("orden") ?? "";
 
   function updateParam(key: string, value: string) {
@@ -22,6 +24,14 @@ export function Filters({ marcas }: { marcas: string[] }) {
 
   return (
     <div className="flex flex-wrap gap-3">
+      <PillSelect value={categoria} onChange={(e) => updateParam("categoria", e.target.value)}>
+        <option value="">Todas las categorías</option>
+        {CATEGORIAS.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </PillSelect>
       <PillSelect value={marca} onChange={(e) => updateParam("marca", e.target.value)}>
         <option value="">Todas las marcas</option>
         {marcas.map((m) => (

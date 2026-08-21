@@ -7,8 +7,17 @@ export type EstadoEstetico =
 
 export type EstadoBateria = "Buena" | "Regular" | "Agotada";
 
+export type Categoria =
+  | "Notebook"
+  | "PC de escritorio"
+  | "Consola"
+  | "Monitor"
+  | "Celular"
+  | "Otro";
+
 export interface Notebook {
   id: string;
+  categoria: Categoria;
   nombre: string;
   marca: string;
   modelo: string;
@@ -18,6 +27,11 @@ export interface Notebook {
   pantalla: string;
   sistema_operativo: string;
   estado_bateria: EstadoBateria;
+  placa_video: string;
+  joysticks_incluidos: string;
+  juegos_incluidos: string;
+  tasa_refresco: string;
+  tipo_panel: string;
   estado_estetico: EstadoEstetico;
   precio: number;
   moneda: string;

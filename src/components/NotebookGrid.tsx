@@ -6,7 +6,7 @@ export function NotebookGrid({ notebooks }: { notebooks: Notebook[] }) {
   if (notebooks.length === 0) {
     return (
       <EmptyState
-        title="Todavía no hay notebooks publicadas"
+        title="Todavía no hay publicaciones"
         description="Volvé a pasar pronto, estamos cargando el catálogo."
       />
     );

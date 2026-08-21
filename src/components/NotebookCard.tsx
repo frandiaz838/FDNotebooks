@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Notebook } from "@/lib/types";
 import { estadoEsteticoClasses } from "@/lib/estadoEstetico";
+import { resumenSpecs } from "@/lib/categorias";
 
 export function NotebookCard({ notebook }: { notebook: Notebook }) {
   const foto = notebook.fotos[0];
@@ -34,9 +35,7 @@ export function NotebookCard({ notebook }: { notebook: Notebook }) {
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <h3 className="font-semibold text-foreground">{notebook.nombre}</h3>
-        <p className="text-sm text-muted">
-          {[notebook.procesador, notebook.ram, notebook.almacenamiento].filter(Boolean).join(" · ")}
-        </p>
+        <p className="text-sm text-muted">{resumenSpecs(notebook).join(" · ")}</p>
         <div className="mt-2 flex items-center justify-between gap-2">
           <span className="text-lg font-bold text-foreground">
             {notebook.moneda} {precioFormateado}

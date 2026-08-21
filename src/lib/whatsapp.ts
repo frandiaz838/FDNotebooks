@@ -1,13 +1,13 @@
 export function buildWhatsAppLink(nombre: string, precio: number, moneda: string) {
   const numero = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
   const precioFormateado = new Intl.NumberFormat("es-AR").format(precio);
-  const mensaje = `Hola! Te escribo por la notebook ${nombre} que vi en FD Notebooks (${moneda} ${precioFormateado})`;
+  const mensaje = `Hola! Te escribo por ${nombre} que vi en FD Computación (${moneda} ${precioFormateado})`;
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 }
 
 export function buildGenericWhatsAppLink() {
   const numero = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
-  const mensaje = "Hola! Te escribo desde FD Notebooks, quería hacerte una consulta.";
+  const mensaje = "Hola! Te escribo desde FD Computación, quería hacerte una consulta.";
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 }
 

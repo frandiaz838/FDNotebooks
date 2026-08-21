@@ -7,6 +7,7 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ShareButton } from "@/components/ShareButton";
 import { NotebookGrid } from "@/components/NotebookGrid";
 import { estadoBateriaClasses, estadoEsteticoClasses } from "@/lib/estadoEstetico";
+import { resumenSpecs, specsDetalle } from "@/lib/categorias";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +47,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!notebook) return {};
 
   const precioFormateado = new Intl.NumberFormat("es-AR").format(notebook.precio);
-  const title = `${notebook.nombre} - FD Notebooks`;
-  const description = `${notebook.moneda} ${precioFormateado} · ${notebook.procesador} · ${notebook.ram} · ${notebook.estado_estetico}`;
+  const title = `${notebook.nombre} - FD Computación`;
+  const description = [
+    `${notebook.moneda} ${precioFormateado}`,
+    ...resumenSpecs(notebook),
+    notebook.estado_estetico,
+  ].join(" · ");
   const image = notebook.fotos[0];
 
   return {
@@ -98,18 +103,16 @@ export default async function NotebookDetailPage({ params }: Props) {
           </div>
 
           <dl className="card grid grid-cols-2 gap-x-4 gap-y-3 p-5 text-sm">
-            <Spec label="Marca" value={notebook.marca} />
-            <Spec label="Modelo" value={notebook.modelo} />
-            <Spec label="Procesador" value={notebook.procesador} />
-            <Spec label="RAM" value={notebook.ram} />
-            <Spec label="Almacenamiento" value={notebook.almacenamiento} />
-            <Spec label="Pantalla" value={notebook.pantalla} />
-            <Spec label="Sistema operativo" value={notebook.sistema_operativo} />
-            <Spec
-              label="Batería"
-              value={notebook.estado_bateria}
-              valueClassName={estadoBateriaClasses(notebook.estado_bateria)}
-            />
+            {specsDetalle(notebook).map((spec) => (
+              <Spec
+                key={spec.label}
+                label={spec.label}
+                value={spec.value}
+                valueClassName={
+                  spec.label === "Batería" ? estadoBateriaClasses(notebook.estado_bateria) : undefined
+                }
+              />
+            ))}
           </dl>
 
           {notebook.descripcion && (

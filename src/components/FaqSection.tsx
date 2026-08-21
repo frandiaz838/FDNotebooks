@@ -1,11 +1,11 @@
 const PREGUNTAS = [
   {
-    q: "¿Puedo probar la notebook antes de pagar?",
-    a: "Sí, siempre. Coordinamos por WhatsApp un encuentro en persona para que la pruebes a fondo — teclado, batería, cámara, wifi — antes de decidir.",
+    q: "¿Puedo probar el equipo antes de pagar?",
+    a: "Sí, siempre. Coordinamos por WhatsApp un encuentro en persona para que lo pruebes a fondo antes de decidir.",
   },
   {
     q: "¿Qué garantía tiene?",
-    a: "Tu garantía es probarla vos mismo: antes de decidir, revisás en persona que todo funcione — teclado, batería, cámara, wifi, puertos. Como es una venta entre particulares no hay garantía formal post-venta, pero eso no significa que desaparezca: si después de la compra te surge una duda, una consulta o un problema, me escribís y te ayudo a resolverlo.",
+    a: "Tu garantía es probarlo vos mismo: antes de decidir, revisás en persona que todo funcione. Como es una venta entre particulares no hay garantía formal post-venta, pero eso no significa que desaparezca: si después de la compra te surge una duda, una consulta o un problema, me escribís y te ayudo a resolverlo.",
   },
   {
     q: "¿Qué medios de pago aceptan?",

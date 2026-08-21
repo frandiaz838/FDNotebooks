@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
           <Logo className="h-11 w-auto" />
           <div>
             <h1 className="text-xl font-bold text-foreground">Panel de administración</h1>
-            <p className="mt-1 text-sm text-muted">Ingresá con tus credenciales de FD Notebooks.</p>
+            <p className="mt-1 text-sm text-muted">Ingresá con tus credenciales de FD Computación.</p>
           </div>
         </div>
 

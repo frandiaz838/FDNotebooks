@@ -35,8 +35,8 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
   if (notebooks.length === 0) {
     return (
       <EmptyState
-        title="Todavía no cargaste ninguna notebook"
-        description='Usá el botón "Nueva notebook" para cargar la primera.'
+        title="Todavía no cargaste ninguna publicación"
+        description='Usá el botón "Nueva publicación" para cargar la primera.'
       />
     );
   }

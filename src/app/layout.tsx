@@ -26,8 +26,8 @@ function resolveSiteUrl() {
 
 export const metadata: Metadata = {
   metadataBase: resolveSiteUrl(),
-  title: "FD Notebooks",
-  description: "Notebooks usadas, revisadas y a buen precio. Consultá por WhatsApp.",
+  title: "FD Computación",
+  description: "Tecnología usada, revisada y a buen precio. Consultá por WhatsApp.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -43,9 +43,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Logo className="h-9 w-auto" />
               <span className="flex flex-col leading-tight">
                 <span className="text-base font-bold tracking-tight text-foreground">
-                  FD Notebooks
+                  FD Computación
                 </span>
-                <span className="text-xs text-muted">Usadas, revisadas y a buen precio</span>
+                <span className="text-xs text-muted">Tecnología usada, revisada y a buen precio</span>
               </span>
             </Link>
           </div>

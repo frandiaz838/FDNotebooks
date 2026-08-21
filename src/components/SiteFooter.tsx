@@ -8,7 +8,7 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
         <div className="flex items-center gap-2.5">
           <Logo className="h-8 w-auto" />
-          <span className="font-bold text-foreground">FD Notebooks</span>
+          <span className="font-bold text-foreground">FD Computación</span>
         </div>
 
         <div>
@@ -41,7 +41,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-muted">
-        FD Notebooks · Compra y venta de notebooks usadas
+        FD Computación · Compra y venta de notebooks usadas
       </div>
     </footer>
   );

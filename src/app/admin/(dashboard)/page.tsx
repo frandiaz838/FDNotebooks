@@ -16,7 +16,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-foreground">Notebooks</h1>
+      <h1 className="text-2xl font-bold text-foreground">Publicaciones</h1>
       <AdminNotebookList notebooks={(data ?? []) as Notebook[]} />
     </div>
   );

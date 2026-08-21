@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { EstadoBateria, EstadoEstetico, Notebook, NotebookInput } from "@/lib/types";
+import type { Categoria, EstadoBateria, EstadoEstetico, Notebook, NotebookInput } from "@/lib/types";
 import { PhotoUploader } from "@/components/PhotoUploader";
 import { AffixInput } from "@/components/AffixInput";
+import { CATEGORIAS } from "@/lib/categorias";
 import {
   RESOLUCIONES,
   TIPOS_ALMACENAMIENTO,
@@ -30,6 +31,7 @@ const SISTEMAS_OPERATIVOS = [
   "Linux",
   "Sin sistema operativo",
 ];
+const SISTEMAS_OPERATIVOS_CELULAR = ["Android", "iOS"];
 const ESTADOS_BATERIA: EstadoBateria[] = ["Buena", "Regular", "Agotada"];
 
 type Props = { mode: "crear" } | { mode: "editar"; notebook: Notebook };
@@ -45,6 +47,8 @@ export function NotebookForm(props: Props) {
   const ramInicial = parseRam(initial?.ram ?? "");
   const almacenInicial = parseAlmacenamiento(initial?.almacenamiento ?? "");
   const pantallaInicial = parsePantalla(initial?.pantalla ?? "");
+
+  const [categoria, setCategoria] = useState<Categoria>(initial?.categoria ?? "Notebook");
 
   const [nombre, setNombre] = useState(initial?.nombre ?? "");
   const [marca, setMarca] = useState(initial?.marca ?? "");
@@ -64,6 +68,13 @@ export function NotebookForm(props: Props) {
   const [estadoBateria, setEstadoBateria] = useState<EstadoBateria>(
     initial?.estado_bateria ?? "Buena"
   );
+  const [placaVideo, setPlacaVideo] = useState(initial?.placa_video ?? "");
+  const [joysticksIncluidos, setJoysticksIncluidos] = useState(
+    initial?.joysticks_incluidos ?? ""
+  );
+  const [juegosIncluidos, setJuegosIncluidos] = useState(initial?.juegos_incluidos ?? "");
+  const [tasaRefresco, setTasaRefresco] = useState(initial?.tasa_refresco ?? "");
+  const [tipoPanel, setTipoPanel] = useState(initial?.tipo_panel ?? "");
 
   const [estadoEstetico, setEstadoEstetico] = useState<EstadoEstetico>(
     initial?.estado_estetico ?? "Excelente"
@@ -84,6 +95,7 @@ export function NotebookForm(props: Props) {
     setError(null);
 
     const payload: NotebookInput = {
+      categoria,
       nombre,
       marca,
       modelo,
@@ -93,6 +105,11 @@ export function NotebookForm(props: Props) {
       pantalla: formatPantalla(pantallaSize, resolucion, tactil),
       sistema_operativo: sistemaOperativo,
       estado_bateria: estadoBateria,
+      placa_video: placaVideo,
+      joysticks_incluidos: joysticksIncluidos,
+      juegos_incluidos: juegosIncluidos,
+      tasa_refresco: tasaRefresco,
+      tipo_panel: tipoPanel,
       estado_estetico: estadoEstetico,
       precio: Number(precio) || 0,
       moneda,
@@ -115,7 +132,7 @@ export function NotebookForm(props: Props) {
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setError(body.error ?? "No se pudo guardar la notebook.");
+      setError(body.error ?? "No se pudo guardar la publicación.");
       return;
     }
 
@@ -123,9 +140,38 @@ export function NotebookForm(props: Props) {
     router.refresh();
   }
 
+  const esNotebookOPC = categoria === "Notebook" || categoria === "PC de escritorio";
+  const mostrarRam = esNotebookOPC || categoria === "Celular";
+  const mostrarAlmacenamiento = esNotebookOPC || categoria === "Consola" || categoria === "Celular";
+  const mostrarTipoAlmacenamiento = esNotebookOPC || categoria === "Consola";
+  const mostrarPlacaVideo = esNotebookOPC;
+  const mostrarSistemaOperativo = esNotebookOPC || categoria === "Celular";
+  const mostrarBateria = categoria === "Notebook" || categoria === "Celular";
+  const opcionesSistemaOperativo =
+    categoria === "Celular" ? SISTEMAS_OPERATIVOS_CELULAR : SISTEMAS_OPERATIVOS;
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <Section title="Información básica" description="Cómo se va a identificar la notebook.">
+      <Section title="Categoría" description="Define qué campos vas a poder cargar más abajo.">
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIAS.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategoria(cat)}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                categoria === cat
+                  ? "border-accent bg-accent-soft text-accent"
+                  : "border-border bg-card text-muted hover:text-foreground"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Información básica" description="Cómo se va a identificar la publicación.">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Nombre / Modelo comercial">
             <input
@@ -133,7 +179,13 @@ export function NotebookForm(props: Props) {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="input"
-              placeholder="Lenovo ThinkPad T480"
+              placeholder={
+                categoria === "Consola"
+                  ? "PlayStation 4 Slim 1TB"
+                  : categoria === "Monitor"
+                    ? "Samsung 24'' Full HD"
+                    : "Lenovo ThinkPad T480"
+              }
             />
           </Field>
           <Field label="Marca">
@@ -153,125 +205,230 @@ export function NotebookForm(props: Props) {
               placeholder="T480"
             />
           </Field>
-          <Field label="Procesador">
-            <input
-              value={procesador}
-              onChange={(e) => setProcesador(e.target.value)}
-              className="input"
-              placeholder="Intel Core i5-8250U"
-            />
-          </Field>
         </div>
       </Section>
 
       <Section title="Especificaciones" description="Se arman automáticamente con el formato correcto.">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Memoria RAM">
-            <div className="flex gap-2">
-              <AffixInput
-                type="text"
-                inputMode="numeric"
-                suffix="GB"
-                value={ram}
-                onChange={(e) => setRam(onlyDigits(e.target.value))}
-                placeholder="8"
+          {esNotebookOPC && (
+            <Field label="Procesador">
+              <input
+                value={procesador}
+                onChange={(e) => setProcesador(e.target.value)}
+                className="input"
+                placeholder="Intel Core i5-8250U"
               />
+            </Field>
+          )}
+
+          {mostrarRam && (
+            <Field label="Memoria RAM">
+              {esNotebookOPC ? (
+                <div className="flex gap-2">
+                  <AffixInput
+                    type="text"
+                    inputMode="numeric"
+                    suffix="GB"
+                    value={ram}
+                    onChange={(e) => setRam(onlyDigits(e.target.value))}
+                    placeholder="8"
+                  />
+                  <select
+                    value={ramTipo}
+                    onChange={(e) => setRamTipo(e.target.value as TipoRam)}
+                    className="w-24 shrink-0 rounded-xl border border-border bg-card px-2.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 sm:w-28"
+                  >
+                    {TIPOS_RAM.map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {tipo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <AffixInput
+                  type="text"
+                  inputMode="numeric"
+                  suffix="GB"
+                  value={ram}
+                  onChange={(e) => setRam(onlyDigits(e.target.value))}
+                  placeholder="8"
+                />
+              )}
+            </Field>
+          )}
+
+          {mostrarAlmacenamiento && (
+            <Field label="Almacenamiento">
+              {mostrarTipoAlmacenamiento ? (
+                <div className="flex gap-2">
+                  <AffixInput
+                    type="text"
+                    inputMode="numeric"
+                    suffix="GB"
+                    value={almacenSize}
+                    onChange={(e) => setAlmacenSize(onlyDigits(e.target.value))}
+                    placeholder="256"
+                  />
+                  <select
+                    value={almacenTipo}
+                    onChange={(e) => setAlmacenTipo(e.target.value as TipoAlmacenamiento)}
+                    className="w-24 shrink-0 rounded-xl border border-border bg-card px-2.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 sm:w-28"
+                  >
+                    {TIPOS_ALMACENAMIENTO.map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {tipo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <AffixInput
+                  type="text"
+                  inputMode="numeric"
+                  suffix="GB"
+                  value={almacenSize}
+                  onChange={(e) => setAlmacenSize(onlyDigits(e.target.value))}
+                  placeholder="128"
+                />
+              )}
+            </Field>
+          )}
+
+          {mostrarPlacaVideo && (
+            <Field label="Placa de video">
+              <input
+                value={placaVideo}
+                onChange={(e) => setPlacaVideo(e.target.value)}
+                className="input"
+                placeholder={
+                  categoria === "Notebook" ? "Integrada / NVIDIA MX450" : "NVIDIA GTX 1660"
+                }
+              />
+            </Field>
+          )}
+
+          {mostrarSistemaOperativo && (
+            <Field label="Sistema operativo">
               <select
-                value={ramTipo}
-                onChange={(e) => setRamTipo(e.target.value as TipoRam)}
-                className="w-24 shrink-0 rounded-xl border border-border bg-card px-2.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 sm:w-28"
+                value={sistemaOperativo}
+                onChange={(e) => setSistemaOperativo(e.target.value)}
+                className="input"
               >
-                {TIPOS_RAM.map((tipo) => (
-                  <option key={tipo} value={tipo}>
-                    {tipo}
+                {opcionesSistemaOperativo.map((so) => (
+                  <option key={so} value={so}>
+                    {so}
                   </option>
                 ))}
               </select>
-            </div>
-          </Field>
+            </Field>
+          )}
 
-          <Field label="Almacenamiento">
-            <div className="flex gap-2">
-              <AffixInput
-                type="text"
-                inputMode="numeric"
-                suffix="GB"
-                value={almacenSize}
-                onChange={(e) => setAlmacenSize(onlyDigits(e.target.value))}
-                placeholder="256"
-              />
+          {mostrarBateria && (
+            <Field label="Estado de la batería">
               <select
-                value={almacenTipo}
-                onChange={(e) => setAlmacenTipo(e.target.value as TipoAlmacenamiento)}
-                className="w-24 shrink-0 rounded-xl border border-border bg-card px-2.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 sm:w-28"
+                value={estadoBateria}
+                onChange={(e) => setEstadoBateria(e.target.value as EstadoBateria)}
+                className="input"
               >
-                {TIPOS_ALMACENAMIENTO.map((tipo) => (
-                  <option key={tipo} value={tipo}>
-                    {tipo}
+                {ESTADOS_BATERIA.map((eb) => (
+                  <option key={eb} value={eb}>
+                    {eb}
                   </option>
                 ))}
               </select>
-            </div>
-          </Field>
+            </Field>
+          )}
 
-          <Field label="Tamaño de pantalla">
-            <AffixInput
-              type="text"
-              inputMode="decimal"
-              suffix={'"'}
-              value={pantallaSize}
-              onChange={(e) => setPantallaSize(e.target.value.replace(/[^\d.]/g, ""))}
-              placeholder="14"
-            />
-          </Field>
+          {categoria === "Consola" && (
+            <Field label="Joysticks incluidos">
+              <input
+                value={joysticksIncluidos}
+                onChange={(e) => setJoysticksIncluidos(e.target.value)}
+                className="input"
+                placeholder="2 joysticks originales"
+              />
+            </Field>
+          )}
 
-          <Field label="Resolución">
-            <select
-              value={resolucion}
-              onChange={(e) => setResolucion(e.target.value as Resolucion)}
-              className="input"
-            >
-              {RESOLUCIONES.map((res) => (
-                <option key={res} value={res}>
-                  {res}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {categoria === "Consola" && (
+            <Field label="Juegos incluidos">
+              <input
+                value={juegosIncluidos}
+                onChange={(e) => setJuegosIncluidos(e.target.value)}
+                className="input"
+                placeholder="FIFA 24, God of War"
+              />
+            </Field>
+          )}
 
-          <Field label="Sistema operativo">
-            <select
-              value={sistemaOperativo}
-              onChange={(e) => setSistemaOperativo(e.target.value)}
-              className="input"
-            >
-              {SISTEMAS_OPERATIVOS.map((so) => (
-                <option key={so} value={so}>
-                  {so}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {(categoria === "Notebook" || categoria === "Monitor") && (
+            <Field label={categoria === "Monitor" ? "Tamaño" : "Tamaño de pantalla"}>
+              <AffixInput
+                type="text"
+                inputMode="decimal"
+                suffix={'"'}
+                value={pantallaSize}
+                onChange={(e) => setPantallaSize(e.target.value.replace(/[^\d.]/g, ""))}
+                placeholder="14"
+              />
+            </Field>
+          )}
 
-          <Field label="Estado de la batería">
-            <select
-              value={estadoBateria}
-              onChange={(e) => setEstadoBateria(e.target.value as EstadoBateria)}
-              className="input"
-            >
-              {ESTADOS_BATERIA.map((eb) => (
-                <option key={eb} value={eb}>
-                  {eb}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {(categoria === "Notebook" || categoria === "Monitor") && (
+            <Field label="Resolución">
+              <select
+                value={resolucion}
+                onChange={(e) => setResolucion(e.target.value as Resolucion)}
+                className="input"
+              >
+                {RESOLUCIONES.map((res) => (
+                  <option key={res} value={res}>
+                    {res}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          {categoria === "Monitor" && (
+            <Field label="Tasa de refresco">
+              <AffixInput
+                type="text"
+                inputMode="numeric"
+                suffix="Hz"
+                value={tasaRefresco}
+                onChange={(e) => setTasaRefresco(onlyDigits(e.target.value))}
+                placeholder="144"
+              />
+            </Field>
+          )}
+
+          {categoria === "Monitor" && (
+            <Field label="Tipo de panel">
+              <input
+                value={tipoPanel}
+                onChange={(e) => setTipoPanel(e.target.value)}
+                className="input"
+                placeholder="IPS"
+              />
+            </Field>
+          )}
         </div>
 
-        <label className="flex w-fit items-center gap-2 text-sm text-foreground">
-          <input type="checkbox" checked={tactil} onChange={(e) => setTactil(e.target.checked)} />
-          Pantalla táctil
-        </label>
+        {categoria === "Notebook" && (
+          <label className="flex w-fit items-center gap-2 text-sm text-foreground">
+            <input type="checkbox" checked={tactil} onChange={(e) => setTactil(e.target.checked)} />
+            Pantalla táctil
+          </label>
+        )}
+
+        {categoria === "Otro" && (
+          <p className="text-sm text-muted">
+            Esta categoría no tiene especificaciones fijas — contá los detalles en la descripción
+            de más abajo.
+          </p>
+        )}
       </Section>
 
       <Section title="Precio y estado" description="Lo que va a ver el comprador primero.">
@@ -339,7 +496,7 @@ export function NotebookForm(props: Props) {
 
       <div className="flex justify-end">
         <button type="submit" disabled={saving} className="btn-accent px-8 py-3 text-base">
-          {saving ? "Guardando..." : "Guardar notebook"}
+          {saving ? "Guardando..." : "Guardar publicación"}
         </button>
       </div>
     </form>

@@ -33,11 +33,11 @@ export function AboutSection() {
   return (
     <section className="card flex flex-col gap-6 p-6 sm:p-8">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Sobre FD Notebooks</h2>
+        <h2 className="text-xl font-bold text-foreground">Sobre FD Computación</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
           Soy Francisco, y ya llevo{" "}
           <strong className="font-semibold text-foreground">más de 100 notebooks vendidas</strong>{" "}
-          desde que empecé por Facebook Marketplace. Armé FD Notebooks para hacerlo de forma más
+          desde que empecé por Facebook Marketplace. Armé FD Computación para hacerlo de forma más
           prolija: reviso cada equipo antes de publicarlo y coordino todo por WhatsApp para que lo
           pruebes vos mismo, en persona, antes de decidir.
         </p>

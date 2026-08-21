@@ -8,11 +8,15 @@ import { FaqSection } from "@/components/FaqSection";
 
 export const dynamic = "force-dynamic";
 
-async function getNotebooks(marca?: string, orden?: string) {
+async function getNotebooks(marca?: string, categoria?: string, orden?: string) {
   let query = supabase.from("notebooks").select("*").eq("disponible", true);
 
   if (marca) {
     query = query.eq("marca", marca);
+  }
+
+  if (categoria) {
+    query = query.eq("categoria", categoria);
   }
 
   if (orden === "asc") {
@@ -34,10 +38,10 @@ async function getNotebooks(marca?: string, orden?: string) {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ marca?: string; orden?: string }>;
+  searchParams: Promise<{ marca?: string; categoria?: string; orden?: string }>;
 }) {
-  const { marca, orden } = await searchParams;
-  const notebooks = await getNotebooks(marca, orden);
+  const { marca, categoria, orden } = await searchParams;
+  const notebooks = await getNotebooks(marca, categoria, orden);
 
   const { data: todas } = await supabase.from("notebooks").select("marca").eq("disponible", true);
   const marcas = Array.from(new Set((todas ?? []).map((n) => n.marca))).sort();
@@ -47,10 +51,10 @@ export default async function Home({
       <div className="bg-[linear-gradient(135deg,var(--accent-gradient-from),var(--accent-gradient-to))]">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-12">
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            Notebooks disponibles
+            Equipos disponibles
           </h1>
           <p className="max-w-xl text-sm text-white/80">
-            Revisadas y listas para usar. Coordinamos por WhatsApp y la probás en persona antes
+            Revisados y listos para usar. Coordinamos por WhatsApp y lo probás en persona antes
             de decidir.
           </p>
         </div>

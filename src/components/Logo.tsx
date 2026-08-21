@@ -4,7 +4,7 @@ export function Logo({ className }: { className?: string }) {
   return (
     <Image
       src="/brand/logo-icon-black.svg"
-      alt="FD Notebooks"
+      alt="FD Computación"
       width={1212}
       height={702}
       priority

@@ -16,7 +16,7 @@ export function AdminHeader() {
             <p className="text-xs font-medium uppercase tracking-wide text-muted">
               Panel de administración
             </p>
-            <span className="text-xl font-bold text-foreground">Mis notebooks</span>
+            <span className="text-xl font-bold text-foreground">Mis publicaciones</span>
           </>
         ) : (
           <Link
@@ -36,7 +36,7 @@ export function AdminHeader() {
             <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[2.5]">
               <path d="M12 5v14M5 12h14" strokeLinecap="round" />
             </svg>
-            Nueva notebook
+            Nueva publicación
           </Link>
         )}
         <LogoutButton />
