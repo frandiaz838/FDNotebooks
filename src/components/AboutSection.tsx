@@ -35,10 +35,11 @@ export function AboutSection() {
       <div>
         <h2 className="text-xl font-bold text-foreground">Sobre FD Notebooks</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Soy Francisco. Armé FD Notebooks después de vender notebooks usadas un buen tiempo por
-          Facebook Marketplace — la idea es la misma, pero más prolijo: reviso cada equipo antes
-          de publicarlo y coordino todo por WhatsApp para que lo pruebes vos mismo, en persona,
-          antes de decidir.
+          Soy Francisco, y ya llevo{" "}
+          <strong className="font-semibold text-foreground">más de 100 notebooks vendidas</strong>{" "}
+          desde que empecé por Facebook Marketplace. Armé FD Notebooks para hacerlo de forma más
+          prolija: reviso cada equipo antes de publicarlo y coordino todo por WhatsApp para que lo
+          pruebes vos mismo, en persona, antes de decidir.
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
