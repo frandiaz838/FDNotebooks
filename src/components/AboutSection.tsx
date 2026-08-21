@@ -34,7 +34,7 @@ export function AboutSection() {
     <section className="card flex flex-col gap-6 p-6 sm:p-8">
       <div>
         <h2 className="text-xl font-bold text-foreground">Sobre FD Notebooks</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+        <p className="mt-2 text-sm leading-relaxed text-muted">
           Soy Francisco. Armé FD Notebooks después de vender notebooks usadas un buen tiempo por
           Facebook Marketplace — la idea es la misma, pero más prolijo: reviso cada equipo antes
           de publicarlo y coordino todo por WhatsApp para que lo pruebes vos mismo, en persona,
