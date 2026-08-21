@@ -6,7 +6,7 @@ import { NotebookGallery } from "@/components/NotebookGallery";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { ShareButton } from "@/components/ShareButton";
 import { NotebookGrid } from "@/components/NotebookGrid";
-import { estadoEsteticoClasses } from "@/lib/estadoEstetico";
+import { estadoBateriaClasses, estadoEsteticoClasses } from "@/lib/estadoEstetico";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +104,12 @@ export default async function NotebookDetailPage({ params }: Props) {
             <Spec label="RAM" value={notebook.ram} />
             <Spec label="Almacenamiento" value={notebook.almacenamiento} />
             <Spec label="Pantalla" value={notebook.pantalla} />
+            <Spec label="Sistema operativo" value={notebook.sistema_operativo} />
+            <Spec
+              label="Batería"
+              value={notebook.estado_bateria}
+              valueClassName={estadoBateriaClasses(notebook.estado_bateria)}
+            />
           </dl>
 
           {notebook.descripcion && (
@@ -135,12 +141,20 @@ export default async function NotebookDetailPage({ params }: Props) {
   );
 }
 
-function Spec({ label, value }: { label: string; value: string }) {
+function Spec({
+  label,
+  value,
+  valueClassName,
+}: {
+  label: string;
+  value: string;
+  valueClassName?: string;
+}) {
   if (!value) return null;
   return (
     <div>
       <dt className="text-xs text-muted">{label}</dt>
-      <dd className="font-medium text-foreground">{value}</dd>
+      <dd className={`font-medium ${valueClassName ?? "text-foreground"}`}>{value}</dd>
     </div>
   );
 }

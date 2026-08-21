@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
       ram: body.ram ?? "",
       almacenamiento: body.almacenamiento ?? "",
       pantalla: body.pantalla ?? "",
+      sistema_operativo: body.sistema_operativo ?? "Windows 11",
+      estado_bateria: body.estado_bateria ?? "Buena",
       estado_estetico: body.estado_estetico ?? "Bueno (detalles carcasa)",
       precio: body.precio,
       moneda: body.moneda ?? "ARS",

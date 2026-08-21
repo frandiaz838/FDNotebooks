@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { EstadoEstetico, Notebook, NotebookInput } from "@/lib/types";
+import type { EstadoBateria, EstadoEstetico, Notebook, NotebookInput } from "@/lib/types";
 import { PhotoUploader } from "@/components/PhotoUploader";
 import { AffixInput } from "@/components/AffixInput";
 import {
@@ -22,6 +22,15 @@ import {
 
 const ESTADOS: EstadoEstetico[] = ["Nuevo", "Excelente", "Muy bueno", "Bueno (detalles carcasa)", "Outlet"];
 const MONEDAS = ["ARS", "USD"];
+const SISTEMAS_OPERATIVOS = [
+  "Windows 11",
+  "Windows 10",
+  "Windows 8",
+  "Windows 7",
+  "Linux",
+  "Sin sistema operativo",
+];
+const ESTADOS_BATERIA: EstadoBateria[] = ["Buena", "Regular", "Agotada"];
 
 type Props = { mode: "crear" } | { mode: "editar"; notebook: Notebook };
 
@@ -49,6 +58,12 @@ export function NotebookForm(props: Props) {
   const [pantallaSize, setPantallaSize] = useState(pantallaInicial.size);
   const [resolucion, setResolucion] = useState<Resolucion>(pantallaInicial.resolucion);
   const [tactil, setTactil] = useState(pantallaInicial.tactil);
+  const [sistemaOperativo, setSistemaOperativo] = useState(
+    initial?.sistema_operativo ?? "Windows 11"
+  );
+  const [estadoBateria, setEstadoBateria] = useState<EstadoBateria>(
+    initial?.estado_bateria ?? "Buena"
+  );
 
   const [estadoEstetico, setEstadoEstetico] = useState<EstadoEstetico>(
     initial?.estado_estetico ?? "Excelente"
@@ -76,6 +91,8 @@ export function NotebookForm(props: Props) {
       ram: formatRam(ram, ramTipo),
       almacenamiento: formatAlmacenamiento(almacenSize, almacenTipo),
       pantalla: formatPantalla(pantallaSize, resolucion, tactil),
+      sistema_operativo: sistemaOperativo,
+      estado_bateria: estadoBateria,
       estado_estetico: estadoEstetico,
       precio: Number(precio) || 0,
       moneda,
@@ -221,6 +238,34 @@ export function NotebookForm(props: Props) {
               ))}
             </select>
           </Field>
+
+          <Field label="Sistema operativo">
+            <select
+              value={sistemaOperativo}
+              onChange={(e) => setSistemaOperativo(e.target.value)}
+              className="input"
+            >
+              {SISTEMAS_OPERATIVOS.map((so) => (
+                <option key={so} value={so}>
+                  {so}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Estado de la batería">
+            <select
+              value={estadoBateria}
+              onChange={(e) => setEstadoBateria(e.target.value as EstadoBateria)}
+              className="input"
+            >
+              {ESTADOS_BATERIA.map((eb) => (
+                <option key={eb} value={eb}>
+                  {eb}
+                </option>
+              ))}
+            </select>
+          </Field>
         </div>
 
         <label className="flex w-fit items-center gap-2 text-sm text-foreground">
@@ -237,9 +282,9 @@ export function NotebookForm(props: Props) {
               type="text"
               inputMode="numeric"
               prefix="$"
-              value={precio}
+              value={precio ? Number(precio).toLocaleString("es-AR") : ""}
               onChange={(e) => setPrecio(onlyDigits(e.target.value))}
-              placeholder="450000"
+              placeholder="450.000"
             />
           </Field>
           <Field label="Moneda">
@@ -276,13 +321,13 @@ export function NotebookForm(props: Props) {
         <PhotoUploader value={fotos} onChange={setFotos} />
       </Section>
 
-      <Section title="Descripción" description="Estado de la batería, accesorios incluidos, garantía, etc.">
+      <Section title="Descripción" description="Accesorios incluidos, detalles extra, lo que quieras contar.">
         <textarea
           value={descripcion ?? ""}
           onChange={(e) => setDescripcion(e.target.value)}
-          rows={4}
+          rows={14}
           className="input"
-          placeholder="Batería al 90%, incluye cargador original..."
+          placeholder="Incluye cargador original, teclado en español..."
         />
       </Section>
 

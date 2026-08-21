@@ -5,6 +5,8 @@ export type EstadoEstetico =
   | "Bueno (detalles carcasa)"
   | "Outlet";
 
+export type EstadoBateria = "Buena" | "Regular" | "Agotada";
+
 export interface Notebook {
   id: string;
   nombre: string;
@@ -14,6 +16,8 @@ export interface Notebook {
   ram: string;
   almacenamiento: string;
   pantalla: string;
+  sistema_operativo: string;
+  estado_bateria: EstadoBateria;
   estado_estetico: EstadoEstetico;
   precio: number;
   moneda: string;
