@@ -50,8 +50,8 @@ export default async function Home({
             Notebooks disponibles
           </h1>
           <p className="max-w-xl text-sm text-white/80">
-            Revisadas y listas para usar. Coordinamos por WhatsApp y te la mostramos en persona
-            antes de cerrar la compra.
+            Revisadas y listas para usar. Coordinamos por WhatsApp y la probás en persona antes
+            de decidir.
           </p>
         </div>
       </div>
