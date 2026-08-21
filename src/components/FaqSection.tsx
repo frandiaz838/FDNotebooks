@@ -5,7 +5,7 @@ const PREGUNTAS = [
   },
   {
     q: "¿Qué garantía tiene?",
-    a: "No ofrezco garantía formal post-venta, y por eso es tan importante que la pruebes bien antes de llevártela: cada equipo lo reviso a fondo y te muestro que funciona todo en el momento de la entrega.",
+    a: "Tu garantía es probarla vos mismo: antes de decidir, revisás en persona que todo funcione — teclado, batería, cámara, wifi, puertos. Como es una venta entre particulares no hay garantía formal post-venta, pero eso no significa que desaparezca: si después de la compra te surge una duda, una consulta o un problema, me escribís y te ayudo a resolverlo.",
   },
   {
     q: "¿Qué medios de pago aceptan?",
@@ -13,7 +13,7 @@ const PREGUNTAS = [
   },
   {
     q: "¿Hacen envíos?",
-    a: "No, la entrega es siempre en persona, coordinando el encuentro en Villa Allende o el centro de Córdoba.",
+    a: "Las entregas se realizan siempre en persona, coordinando el encuentro en un lugar público a convenir, desde Villa Allende hasta el centro de Córdoba, con costo variable según la distancia.",
   },
 ];
 
