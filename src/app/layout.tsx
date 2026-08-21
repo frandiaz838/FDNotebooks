@@ -16,8 +16,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+function resolveSiteUrl() {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
+  } catch {
+    return new URL("http://localhost:3000");
+  }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: resolveSiteUrl(),
   title: "FD Notebooks",
   description: "Notebooks usadas, revisadas y a buen precio. Consultá por WhatsApp.",
 };
