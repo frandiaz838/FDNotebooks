@@ -6,15 +6,9 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-white">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <Logo className="h-8 w-auto" />
-            <span className="font-bold text-foreground">FD Notebooks</span>
-          </div>
-          <p className="mt-3 text-sm text-muted">
-            Compro y vendo notebooks usadas. Las reviso a fondo y las probás vos mismo en persona
-            antes de decidir.
-          </p>
+        <div className="flex items-center gap-2.5">
+          <Logo className="h-8 w-auto" />
+          <span className="font-bold text-foreground">FD Notebooks</span>
         </div>
 
         <div>
