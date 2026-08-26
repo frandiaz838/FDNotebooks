@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { LOGO_ICON_WHITE_BASE64 } from "@/lib/logoBase64";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -20,22 +21,14 @@ export default function Image() {
           fontFamily: "sans-serif",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 96,
-            height: 96,
-            borderRadius: 24,
-            background: "rgba(255,255,255,0.15)",
-            fontSize: 40,
-            fontWeight: 700,
-            marginBottom: 40,
-          }}
-        >
-          FD
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`data:image/png;base64,${LOGO_ICON_WHITE_BASE64}`}
+          width={168}
+          height={97}
+          alt=""
+          style={{ marginBottom: 40 }}
+        />
         <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.1 }}>FD Computación</div>
         <div style={{ fontSize: 32, marginTop: 20, color: "rgba(255,255,255,0.85)" }}>
           Tecnología usada, revisada y a buen precio
