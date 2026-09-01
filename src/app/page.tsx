@@ -53,9 +53,11 @@ export default async function Home({
           <h1 className="text-3xl font-bold tracking-tight text-white">
             Equipos disponibles
           </h1>
-          <p className="max-w-xl text-sm text-white/80">
-            Revisados y listos para usar. Coordinamos por WhatsApp y lo probás en persona antes
-            de decidir.
+          <p className="max-w-2xl text-sm leading-relaxed text-white/80">
+            <strong className="font-semibold text-white">Revisados y listos para usar.</strong>{" "}
+            Coordinamos por <strong className="font-semibold text-white">WhatsApp</strong> y lo
+            probás <strong className="font-semibold text-white">en persona</strong> antes de
+            decidir.
           </p>
         </div>
       </div>
