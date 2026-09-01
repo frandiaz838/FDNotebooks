@@ -6,19 +6,57 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { Notebook } from "@/lib/types";
 import { EmptyState } from "@/components/EmptyState";
+import { MarkSoldModal } from "@/components/MarkSoldModal";
+import { EditSaleModal } from "@/components/EditSaleModal";
 
 export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
   const router = useRouter();
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [soldTarget, setSoldTarget] = useState<Notebook | null>(null);
+  const [editSaleTarget, setEditSaleTarget] = useState<Notebook | null>(null);
 
-  async function toggleDisponible(notebook: Notebook) {
+  async function markAvailable(notebook: Notebook) {
     setPendingId(notebook.id);
     await fetch(`/api/notebooks/${notebook.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ disponible: !notebook.disponible }),
+      body: JSON.stringify({ disponible: true }),
     });
     setPendingId(null);
+    router.refresh();
+  }
+
+  async function confirmSold(precioVentaFinal: number) {
+    if (!soldTarget) return;
+    setPendingId(soldTarget.id);
+    await fetch(`/api/notebooks/${soldTarget.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disponible: false, precio_venta_final: precioVentaFinal }),
+    });
+    setPendingId(null);
+    setSoldTarget(null);
+    router.refresh();
+  }
+
+  async function confirmEditSale(data: {
+    costo: number | null;
+    precioVentaFinal: number;
+    vendidoEn: string;
+  }) {
+    if (!editSaleTarget) return;
+    setPendingId(editSaleTarget.id);
+    await fetch(`/api/notebooks/${editSaleTarget.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        costo: data.costo,
+        precio_venta_final: data.precioVentaFinal,
+        vendido_en: data.vendidoEn,
+      }),
+    });
+    setPendingId(null);
+    setEditSaleTarget(null);
     router.refresh();
   }
 
@@ -58,7 +96,7 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
               key={notebook.id}
               notebook={notebook}
               pending={pendingId === notebook.id}
-              onToggleDisponible={() => toggleDisponible(notebook)}
+              onToggleDisponible={() => setSoldTarget(notebook)}
               onDelete={() => handleDelete(notebook)}
             />
           ))
@@ -75,11 +113,28 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
               key={notebook.id}
               notebook={notebook}
               pending={pendingId === notebook.id}
-              onToggleDisponible={() => toggleDisponible(notebook)}
+              onToggleDisponible={() => markAvailable(notebook)}
+              onEditSale={() => setEditSaleTarget(notebook)}
               onDelete={() => handleDelete(notebook)}
             />
           ))}
         </div>
+      )}
+
+      {soldTarget && (
+        <MarkSoldModal
+          notebook={soldTarget}
+          onConfirm={confirmSold}
+          onCancel={() => setSoldTarget(null)}
+        />
+      )}
+
+      {editSaleTarget && (
+        <EditSaleModal
+          notebook={editSaleTarget}
+          onConfirm={confirmEditSale}
+          onCancel={() => setEditSaleTarget(null)}
+        />
       )}
     </div>
   );
@@ -89,11 +144,13 @@ function NotebookRow({
   notebook,
   pending,
   onToggleDisponible,
+  onEditSale,
   onDelete,
 }: {
   notebook: Notebook;
   pending: boolean;
   onToggleDisponible: () => void;
+  onEditSale?: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -138,6 +195,16 @@ function NotebookRow({
         >
           Editar
         </Link>
+        {onEditSale && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onEditSale}
+            className="btn-secondary px-3.5 py-1.5 text-sm"
+          >
+            Editar venta
+          </button>
+        )}
         <button
           type="button"
           disabled={pending}

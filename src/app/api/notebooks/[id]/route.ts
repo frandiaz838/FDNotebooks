@@ -16,9 +16,19 @@ export async function PUT(
   const { id } = await context.params;
   const body = (await request.json()) as Partial<NotebookInput>;
 
+  const update: Partial<NotebookInput> & { actualizado_en: string; vendido_en?: string | null } = {
+    ...body,
+    actualizado_en: new Date().toISOString(),
+  };
+
+  // La fecha de venta se calcula del lado del servidor, no se confía en el cliente.
+  if ("disponible" in body) {
+    update.vendido_en = body.disponible ? null : new Date().toISOString();
+  }
+
   const { data, error } = await supabaseAdmin
     .from("notebooks")
-    .update({ ...body, actualizado_en: new Date().toISOString() })
+    .update(update)
     .eq("id", id)
     .select()
     .single();

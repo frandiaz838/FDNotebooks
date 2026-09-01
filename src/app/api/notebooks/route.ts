@@ -10,21 +10,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  const body = (await request.json()) as Partial<NotebookInput>;
+  const body = (await request.json()) as Partial<NotebookInput> & { vendido_en?: string | null };
 
-  if (!body.nombre || !body.marca || !body.precio) {
+  if (!body.nombre || !body.precio) {
     return NextResponse.json(
-      { error: "Faltan campos obligatorios (nombre, marca, precio)." },
+      { error: "Faltan campos obligatorios (nombre, precio)." },
       { status: 400 }
     );
   }
+
+  const disponible = body.disponible ?? true;
 
   const { data, error } = await supabaseAdmin
     .from("notebooks")
     .insert({
       categoria: body.categoria ?? "Notebook",
       nombre: body.nombre,
-      marca: body.marca,
+      marca: body.marca ?? "",
       modelo: body.modelo ?? "",
       procesador: body.procesador ?? "",
       ram: body.ram ?? "",
@@ -42,8 +44,11 @@ export async function POST(request: NextRequest) {
       moneda: body.moneda ?? "ARS",
       descripcion: body.descripcion ?? null,
       fotos: body.fotos ?? [],
-      disponible: body.disponible ?? true,
+      disponible,
       destacado: body.destacado ?? false,
+      costo: body.costo ?? null,
+      precio_venta_final: body.precio_venta_final ?? null,
+      vendido_en: !disponible ? (body.vendido_en ?? new Date().toISOString()) : null,
     })
     .select()
     .single();

@@ -39,11 +39,15 @@ export interface Notebook {
   fotos: string[];
   disponible: boolean;
   destacado: boolean;
+  // Privados: nunca se muestran en el catálogo público.
+  costo: number | null;
+  precio_venta_final: number | null;
+  vendido_en: string | null;
   creado_en: string;
   actualizado_en: string;
 }
 
 export type NotebookInput = Omit<
   Notebook,
-  "id" | "creado_en" | "actualizado_en"
+  "id" | "creado_en" | "actualizado_en" | "vendido_en"
 >;

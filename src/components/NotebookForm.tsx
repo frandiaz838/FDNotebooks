@@ -85,6 +85,7 @@ export function NotebookForm(props: Props) {
   const [fotos, setFotos] = useState<string[]>(initial?.fotos ?? []);
   const [disponible, setDisponible] = useState(initial?.disponible ?? true);
   const [destacado, setDestacado] = useState(initial?.destacado ?? false);
+  const [costo, setCosto] = useState(initial?.costo ? String(initial.costo) : "");
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,6 +118,8 @@ export function NotebookForm(props: Props) {
       fotos,
       disponible,
       destacado,
+      costo: costo ? Number(costo) : null,
+      precio_venta_final: initial?.precio_venta_final ?? null,
     };
 
     const url = props.mode === "editar" ? `/api/notebooks/${props.notebook.id}` : "/api/notebooks";
@@ -471,6 +474,24 @@ export function NotebookForm(props: Props) {
         <div className="flex flex-wrap gap-3">
           <ToggleChip label="Disponible" checked={disponible} onChange={setDisponible} />
           <ToggleChip label="Destacado" checked={destacado} onChange={setDestacado} />
+        </div>
+      </Section>
+
+      <Section
+        title="Costo de compra (privado)"
+        description="Solo lo ves vos en el panel — nunca se muestra en el catálogo. Sirve para calcular tu ganancia."
+      >
+        <div className="max-w-xs">
+          <Field label="Cuánto pagaste por este equipo">
+            <AffixInput
+              type="text"
+              inputMode="numeric"
+              prefix="$"
+              value={costo ? Number(costo).toLocaleString("es-AR") : ""}
+              onChange={(e) => setCosto(onlyDigits(e.target.value))}
+              placeholder="200.000"
+            />
+          </Field>
         </div>
       </Section>
 
