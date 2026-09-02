@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
       descripcion: body.descripcion ?? null,
       fotos: body.fotos ?? [],
       disponible,
+      suspendida: body.suspendida ?? false,
       destacado: body.destacado ?? false,
       costo: body.costo ?? null,
       precio_venta_final: body.precio_venta_final ?? null,

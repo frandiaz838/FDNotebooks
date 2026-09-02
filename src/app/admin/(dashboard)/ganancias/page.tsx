@@ -9,6 +9,7 @@ export default async function GananciasPage() {
     .from("notebooks")
     .select("*")
     .eq("disponible", false)
+    .eq("suspendida", false)
     .order("vendido_en", { ascending: false });
 
   if (error) {

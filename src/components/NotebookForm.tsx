@@ -117,6 +117,7 @@ export function NotebookForm(props: Props) {
       descripcion,
       fotos,
       disponible,
+      suspendida: initial?.suspendida ?? false,
       destacado,
       costo: costo ? Number(costo) : null,
       precio_venta_final: initial?.precio_venta_final ?? null,

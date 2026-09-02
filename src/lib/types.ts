@@ -38,6 +38,7 @@ export interface Notebook {
   descripcion: string | null;
   fotos: string[];
   disponible: boolean;
+  suspendida: boolean;
   destacado: boolean;
   // Privados: nunca se muestran en el catálogo público.
   costo: number | null;

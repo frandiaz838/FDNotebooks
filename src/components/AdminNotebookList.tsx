@@ -15,15 +15,23 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
   const [soldTarget, setSoldTarget] = useState<Notebook | null>(null);
   const [editSaleTarget, setEditSaleTarget] = useState<Notebook | null>(null);
 
-  async function markAvailable(notebook: Notebook) {
-    setPendingId(notebook.id);
-    await fetch(`/api/notebooks/${notebook.id}`, {
+  async function putNotebook(id: string, body: Record<string, unknown>) {
+    setPendingId(id);
+    await fetch(`/api/notebooks/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ disponible: true }),
+      body: JSON.stringify(body),
     });
     setPendingId(null);
     router.refresh();
+  }
+
+  async function markAvailable(notebook: Notebook) {
+    await putNotebook(notebook.id, { disponible: true, suspendida: false });
+  }
+
+  async function suspend(notebook: Notebook) {
+    await putNotebook(notebook.id, { disponible: false, suspendida: true });
   }
 
   async function confirmSold(precioVentaFinal: number) {
@@ -32,7 +40,11 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
     await fetch(`/api/notebooks/${soldTarget.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ disponible: false, precio_venta_final: precioVentaFinal }),
+      body: JSON.stringify({
+        disponible: false,
+        suspendida: false,
+        precio_venta_final: precioVentaFinal,
+      }),
     });
     setPendingId(null);
     setSoldTarget(null);
@@ -80,7 +92,8 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
   }
 
   const disponibles = notebooks.filter((n) => n.disponible);
-  const vendidas = notebooks.filter((n) => !n.disponible);
+  const suspendidas = notebooks.filter((n) => !n.disponible && n.suspendida);
+  const vendidas = notebooks.filter((n) => !n.disponible && !n.suspendida);
 
   return (
     <div className="flex flex-col gap-8">
@@ -96,12 +109,31 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
               key={notebook.id}
               notebook={notebook}
               pending={pendingId === notebook.id}
-              onToggleDisponible={() => setSoldTarget(notebook)}
+              onMarkSold={() => setSoldTarget(notebook)}
+              onSuspend={() => suspend(notebook)}
               onDelete={() => handleDelete(notebook)}
             />
           ))
         )}
       </div>
+
+      {suspendidas.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
+            Suspendidas ({suspendidas.length})
+          </h2>
+          {suspendidas.map((notebook) => (
+            <NotebookRow
+              key={notebook.id}
+              notebook={notebook}
+              pending={pendingId === notebook.id}
+              onMarkSold={() => setSoldTarget(notebook)}
+              onMarkAvailable={() => markAvailable(notebook)}
+              onDelete={() => handleDelete(notebook)}
+            />
+          ))}
+        </div>
+      )}
 
       {vendidas.length > 0 && (
         <div className="flex flex-col gap-3">
@@ -113,7 +145,7 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
               key={notebook.id}
               notebook={notebook}
               pending={pendingId === notebook.id}
-              onToggleDisponible={() => markAvailable(notebook)}
+              onMarkAvailable={() => markAvailable(notebook)}
               onEditSale={() => setEditSaleTarget(notebook)}
               onDelete={() => handleDelete(notebook)}
             />
@@ -140,19 +172,31 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
   );
 }
 
+function estadoBadge(notebook: Notebook) {
+  if (notebook.disponible) return { label: "Disponible", className: "bg-emerald-50 text-emerald-700" };
+  if (notebook.suspendida) return { label: "Suspendida", className: "bg-amber-50 text-amber-700" };
+  return { label: "Vendida", className: "bg-slate-100 text-muted" };
+}
+
 function NotebookRow({
   notebook,
   pending,
-  onToggleDisponible,
+  onMarkSold,
+  onSuspend,
+  onMarkAvailable,
   onEditSale,
   onDelete,
 }: {
   notebook: Notebook;
   pending: boolean;
-  onToggleDisponible: () => void;
+  onMarkSold?: () => void;
+  onSuspend?: () => void;
+  onMarkAvailable?: () => void;
   onEditSale?: () => void;
   onDelete: () => void;
 }) {
+  const badge = estadoBadge(notebook);
+
   return (
     <div
       className={`card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between ${
@@ -177,12 +221,8 @@ function NotebookRow({
             <span>
               {notebook.moneda} {new Intl.NumberFormat("es-AR").format(notebook.precio)}
             </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                notebook.disponible ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-muted"
-              }`}
-            >
-              {notebook.disponible ? "Disponible" : "Vendida"}
+            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}>
+              {badge.label}
             </span>
           </div>
         </div>
@@ -205,14 +245,36 @@ function NotebookRow({
             Editar venta
           </button>
         )}
-        <button
-          type="button"
-          disabled={pending}
-          onClick={onToggleDisponible}
-          className="btn-secondary px-3.5 py-1.5 text-sm"
-        >
-          {notebook.disponible ? "Marcar vendida" : "Marcar disponible"}
-        </button>
+        {onSuspend && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onSuspend}
+            className="btn-secondary px-3.5 py-1.5 text-sm"
+          >
+            Suspender
+          </button>
+        )}
+        {onMarkAvailable && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onMarkAvailable}
+            className="btn-secondary px-3.5 py-1.5 text-sm"
+          >
+            Marcar disponible
+          </button>
+        )}
+        {onMarkSold && (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onMarkSold}
+            className="btn-secondary px-3.5 py-1.5 text-sm"
+          >
+            Marcar vendida
+          </button>
+        )}
         <button type="button" disabled={pending} onClick={onDelete} className="btn-danger text-sm">
           Eliminar
         </button>

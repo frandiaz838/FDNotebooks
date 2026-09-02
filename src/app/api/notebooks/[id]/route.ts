@@ -22,8 +22,10 @@ export async function PUT(
   };
 
   // La fecha de venta se calcula del lado del servidor, no se confía en el cliente.
+  // Suspender no es una venta, así que nunca genera vendido_en.
   if ("disponible" in body) {
-    update.vendido_en = body.disponible ? null : new Date().toISOString();
+    const esSuspension = body.disponible === false && body.suspendida === true;
+    update.vendido_en = body.disponible === false && !esSuspension ? new Date().toISOString() : null;
   }
 
   const { data, error } = await supabaseAdmin
