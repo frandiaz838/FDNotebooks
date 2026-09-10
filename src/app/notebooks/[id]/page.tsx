@@ -80,7 +80,9 @@ export default async function NotebookDetailPage({ params }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-4 py-8">
       <div className="grid w-full gap-8 lg:grid-cols-2">
-        <NotebookGallery fotos={notebook.fotos} alt={notebook.nombre} />
+        <div className="min-w-0 lg:sticky lg:top-20 lg:self-start">
+          <NotebookGallery fotos={notebook.fotos} alt={notebook.nombre} />
+        </div>
 
         <div className="flex min-w-0 flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
@@ -93,10 +95,20 @@ export default async function NotebookDetailPage({ params }: Props) {
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{notebook.nombre}</h1>
-            <p className="mt-1 text-3xl font-bold text-foreground">
-              {notebook.moneda} {precioFormateado}
-            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-foreground">{notebook.nombre}</h1>
+                <p className="mt-1 text-3xl font-bold text-foreground">
+                  {notebook.moneda} {precioFormateado}
+                </p>
+              </div>
+              <WhatsAppButton
+                nombre={notebook.nombre}
+                precio={notebook.precio}
+                moneda={notebook.moneda}
+                compact
+              />
+            </div>
             <p className="mt-1 text-xs text-muted">
               Unidad única · el estado puede variar levemente de otras que veas publicadas
             </p>
