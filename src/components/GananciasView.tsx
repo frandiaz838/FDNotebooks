@@ -68,6 +68,14 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
     router.refresh();
   }
 
+  async function handleDelete(notebook: Notebook) {
+    if (!confirm(`¿Borrar la venta de "${notebook.nombre}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    await fetch(`/api/notebooks/${notebook.id}`, { method: "DELETE" });
+    router.refresh();
+  }
+
   const ordenadas = [...vendidas].sort((a, b) => {
     const fa = a.vendido_en ? new Date(a.vendido_en).getTime() : 0;
     const fb = b.vendido_en ? new Date(b.vendido_en).getTime() : 0;
@@ -180,13 +188,22 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
                       </p>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setEditTarget(n)}
-                    className="self-end text-sm font-medium text-accent hover:underline"
-                  >
-                    Editar venta
-                  </button>
+                  <div className="flex justify-end gap-4">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(n)}
+                      className="text-sm font-medium text-danger hover:underline"
+                    >
+                      Borrar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditTarget(n)}
+                      className="text-sm font-medium text-accent hover:underline"
+                    >
+                      Editar venta
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -230,13 +247,22 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
                           {n.moneda} {money(ganancia)}
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-right">
-                          <button
-                            type="button"
-                            onClick={() => setEditTarget(n)}
-                            className="text-sm font-medium text-accent hover:underline"
-                          >
-                            Editar
-                          </button>
+                          <div className="flex justify-end gap-4">
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(n)}
+                              className="text-sm font-medium text-danger hover:underline"
+                            >
+                              Borrar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditTarget(n)}
+                              className="text-sm font-medium text-accent hover:underline"
+                            >
+                              Editar
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

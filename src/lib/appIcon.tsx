@@ -1,4 +1,4 @@
-import { LOGO_ICON_WHITE_BASE64 } from "@/lib/logoBase64";
+import { LOGO_ICON_BLACK_BASE64 } from "@/lib/logoBase64";
 
 const LOGO_ASPECT_RATIO = 1212 / 702;
 
@@ -14,12 +14,12 @@ export function AppIconMark({ size }: { size: number }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #1d4ed8, #7c3aed)",
+        background: "#ffffff",
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`data:image/png;base64,${LOGO_ICON_WHITE_BASE64}`}
+        src={`data:image/png;base64,${LOGO_ICON_BLACK_BASE64}`}
         width={logoWidth}
         height={logoHeight}
         alt=""
