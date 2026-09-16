@@ -9,7 +9,7 @@ export function AdminHeader() {
   const isListado = pathname === "/admin";
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         {isListado ? (
           <>
@@ -30,21 +30,24 @@ export function AdminHeader() {
           </Link>
         )}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
         {isListado && (
           <>
-            <Link href="/admin/ganancias" className="btn-secondary">
-              Ganancias
-            </Link>
-            <Link href="/admin/notebooks/nueva" className="btn-accent">
+            <Link
+              href="/admin/notebooks/nueva"
+              className="btn-accent col-span-2 order-first sm:order-none sm:w-auto"
+            >
               <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[2.5]">
                 <path d="M12 5v14M5 12h14" strokeLinecap="round" />
               </svg>
               Nueva publicación
             </Link>
+            <Link href="/admin/ganancias" className="btn-secondary sm:w-auto">
+              Ganancias
+            </Link>
           </>
         )}
-        <LogoutButton />
+        <LogoutButton className={isListado ? "sm:w-auto" : "col-span-2 sm:w-auto"} />
       </div>
     </div>
   );

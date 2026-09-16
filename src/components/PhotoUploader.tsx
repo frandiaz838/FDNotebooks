@@ -48,6 +48,14 @@ export function PhotoUploader({
     onChange(next);
   }
 
+  function makeCover(index: number) {
+    if (index === 0) return;
+    const next = [...value];
+    const [foto] = next.splice(index, 1);
+    next.unshift(foto);
+    onChange(next);
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <button
@@ -103,10 +111,18 @@ export function PhotoUploader({
             <div key={url} className="group relative flex flex-col gap-1.5">
               <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-slate-100">
                 <Image src={url} alt="" fill sizes="150px" className="object-cover" />
-                {index === 0 && (
+                {index === 0 ? (
                   <span className="absolute left-1.5 top-1.5 rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-semibold text-white">
                     Portada
                   </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => makeCover(index)}
+                    className="absolute left-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white transition-colors hover:bg-black/75"
+                  >
+                    Hacer portada
+                  </button>
                 )}
               </div>
               <div className="flex items-center justify-between text-xs">

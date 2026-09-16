@@ -6,7 +6,9 @@ import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 export function FloatingWhatsAppButton() {
   const pathname = usePathname();
-  if (pathname.startsWith("/admin")) return null;
+  // En /admin ya no aplica, y en la ficha de una notebook ya hay un botón
+  // grande y contextual arriba de todo — este quedaría redundante.
+  if (pathname.startsWith("/admin") || pathname.startsWith("/notebooks/")) return null;
 
   return (
     <a

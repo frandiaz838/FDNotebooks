@@ -95,24 +95,20 @@ export default async function NotebookDetailPage({ params }: Props) {
           </div>
 
           <div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-foreground">{notebook.nombre}</h1>
-                <p className="mt-1 text-3xl font-bold text-foreground">
-                  {notebook.moneda} {precioFormateado}
-                </p>
-              </div>
-              <WhatsAppButton
-                nombre={notebook.nombre}
-                precio={notebook.precio}
-                moneda={notebook.moneda}
-                compact
-              />
-            </div>
+            <h1 className="text-2xl font-bold text-foreground">{notebook.nombre}</h1>
+            <p className="mt-1 text-3xl font-bold text-foreground">
+              {notebook.moneda} {precioFormateado}
+            </p>
             <p className="mt-1 text-xs text-muted">
               Unidad única · el estado puede variar levemente de otras que veas publicadas
             </p>
           </div>
+
+          <WhatsAppButton
+            nombre={notebook.nombre}
+            precio={notebook.precio}
+            moneda={notebook.moneda}
+          />
 
           <dl className="card grid grid-cols-2 gap-x-4 gap-y-3 p-5 text-sm">
             {specsDetalle(notebook).map((spec) => (
@@ -135,14 +131,6 @@ export default async function NotebookDetailPage({ params }: Props) {
               </p>
             </div>
           )}
-
-          <div className="mt-2">
-            <WhatsAppButton
-              nombre={notebook.nombre}
-              precio={notebook.precio}
-              moneda={notebook.moneda}
-            />
-          </div>
         </div>
       </div>
 

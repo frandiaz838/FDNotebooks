@@ -6,6 +6,7 @@ export interface ResumenMoneda {
   costoTotal: number;
   ingresosTotal: number;
   gananciaTotal: number;
+  margen: number | null;
   diasPromedio: number | null;
 }
 
@@ -35,12 +36,15 @@ export function calcularResumen(vendidas: Notebook[]): ResumenMoneda[] {
       .filter((d) => d >= 0);
     const diasPromedio = dias.length > 0 ? dias.reduce((a, b) => a + b, 0) / dias.length : null;
 
+    const gananciaTotal = ingresosTotal - costoTotal;
+
     return {
       moneda,
       cantidad: items.length,
       costoTotal,
       ingresosTotal,
-      gananciaTotal: ingresosTotal - costoTotal,
+      gananciaTotal,
+      margen: ingresosTotal > 0 ? (gananciaTotal / ingresosTotal) * 100 : null,
       diasPromedio,
     };
   });
