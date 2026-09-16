@@ -77,8 +77,31 @@ export default async function NotebookDetailPage({ params }: Props) {
   const relacionadas = await getRelacionadas(notebook.id, notebook.marca);
   const precioFormateado = new Intl.NumberFormat("es-AR").format(notebook.precio);
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: notebook.nombre,
+    description: notebook.descripcion || resumenSpecs(notebook).join(" · "),
+    image: notebook.fotos,
+    brand: {
+      "@type": "Brand",
+      name: notebook.marca || "FD Computación",
+    },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: notebook.moneda,
+      price: notebook.precio,
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/UsedCondition",
+    },
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="grid w-full gap-8 lg:grid-cols-2">
         <div className="min-w-0 lg:sticky lg:top-20 lg:self-start">
           <NotebookGallery fotos={notebook.fotos} alt={notebook.nombre} />
