@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
@@ -28,6 +28,10 @@ export const metadata: Metadata = {
   metadataBase: resolveSiteUrl(),
   title: "FD Computación",
   description: "Tecnología usada, revisada y a buen precio. Consultá por WhatsApp.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1d4ed8",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
