@@ -1,70 +1,96 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MenuDesplegable, OpcionMenu } from "@/components/MenuDesplegable";
 
-type Tema = "light" | "dark";
+type Tema = "system" | "light" | "dark";
 
-export const TEMA_STORAGE_KEY = "fd-tema";
+const TEMA_STORAGE_KEY = "fd-tema";
 
-export function ThemeToggle() {
-  const [tema, setTema] = useState<Tema | null>(null);
+const ICONO_SOL = (
+  <>
+    <circle cx="12" cy="12" r="4" />
+    <path
+      d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+      strokeLinecap="round"
+    />
+  </>
+);
 
-  useEffect(() => {
-    const guardado = localStorageSeguro()?.getItem(TEMA_STORAGE_KEY);
-    if (guardado === "light" || guardado === "dark") {
-      setTema(guardado);
-      return;
-    }
-    setTema(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  }, []);
+const ICONO_LUNA = (
+  <path
+    d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+);
 
-  function alternar() {
-    const siguiente: Tema = tema === "dark" ? "light" : "dark";
-    setTema(siguiente);
-    document.documentElement.dataset.theme = siguiente;
-    localStorageSeguro()?.setItem(TEMA_STORAGE_KEY, siguiente);
-  }
-
-  // Hasta saber el tema real no hay nada que dibujar: el server no conoce la
-  // preferencia del navegador y pintaría el ícono equivocado.
-  if (!tema) return <span className="h-9 w-9" />;
-
-  const esOscuro = tema === "dark";
-
-  return (
-    <button
-      type="button"
-      onClick={alternar}
-      aria-label={esOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-      title={esOscuro ? "Modo claro" : "Modo oscuro"}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-    >
-      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-        {esOscuro ? (
-          <path
-            d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ) : (
-          <>
-            <circle cx="12" cy="12" r="4" />
-            <path
-              d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
-              strokeLinecap="round"
-            />
-          </>
-        )}
-      </svg>
-    </button>
-  );
-}
-
-function localStorageSeguro() {
+function almacenamiento() {
   // En navegación privada el acceso puede tirar excepción.
   try {
     return window.localStorage;
   } catch {
     return null;
   }
+}
+
+function aplicar(tema: Tema) {
+  if (tema === "system") {
+    delete document.documentElement.dataset.theme;
+    return;
+  }
+  document.documentElement.dataset.theme = tema;
+}
+
+export function ThemeToggle() {
+  const [tema, setTema] = useState<Tema | null>(null);
+  const [sistemaOscuro, setSistemaOscuro] = useState(false);
+
+  useEffect(() => {
+    const guardado = almacenamiento()?.getItem(TEMA_STORAGE_KEY);
+    setTema(guardado === "light" || guardado === "dark" ? guardado : "system");
+
+    const consulta = window.matchMedia("(prefers-color-scheme: dark)");
+    setSistemaOscuro(consulta.matches);
+
+    const alCambiar = (evento: MediaQueryListEvent) => setSistemaOscuro(evento.matches);
+    consulta.addEventListener("change", alCambiar);
+    return () => consulta.removeEventListener("change", alCambiar);
+  }, []);
+
+  function elegir(siguiente: Tema) {
+    setTema(siguiente);
+    aplicar(siguiente);
+    const storage = almacenamiento();
+    if (!storage) return;
+    if (siguiente === "system") storage.removeItem(TEMA_STORAGE_KEY);
+    else storage.setItem(TEMA_STORAGE_KEY, siguiente);
+  }
+
+  // Hasta saber la preferencia real no hay nada que dibujar: el server no la
+  // conoce y pintaría el ícono equivocado.
+  if (!tema) return <span className="h-10 w-10" />;
+
+  const esOscuro = tema === "dark" || (tema === "system" && sistemaOscuro);
+
+  return (
+    <MenuDesplegable
+      etiqueta="Cambiar tema"
+      icono={
+        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+          {esOscuro ? ICONO_LUNA : ICONO_SOL}
+        </svg>
+      }
+    >
+      <OpcionMenu onClick={() => elegir("system")} activa={tema === "system"}>
+        Sistema
+      </OpcionMenu>
+      <OpcionMenu onClick={() => elegir("light")} activa={tema === "light"}>
+        Claro
+      </OpcionMenu>
+      <OpcionMenu onClick={() => elegir("dark")} activa={tema === "dark"}>
+        Oscuro
+      </OpcionMenu>
+    </MenuDesplegable>
+  );
 }

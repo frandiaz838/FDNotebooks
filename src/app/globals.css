@@ -3,7 +3,7 @@
 :root {
   --background: #f6f7fb;
   --foreground: #0f172a;
-  --muted: #64748b;
+  --muted: #5b6778;
   --border: #e2e8f0;
   --card: #ffffff;
   --surface-hover: #f8fafc;
@@ -15,7 +15,7 @@
   --accent-soft: #eff6ff;
   --accent-gradient-from: #1d4ed8;
   --accent-gradient-to: #7c3aed;
-  --danger: #dc2626;
+  --danger: #cf2222;
   --danger-soft: #fef2f2;
   --danger-border: #fecaca;
   --danger-soft-hover: #fee2e2;
@@ -27,6 +27,9 @@
   --info-soft: #eff6ff;
   --btn-primary-text: #ffffff;
   --btn-primary-hover: #1e293b;
+  /* Alto del header del sitio. El propio header lo usa como min-height, así
+     que lo que se pegue debajo (el thead de Ganancias) queda alineado. */
+  --header-alto: 69px;
   color-scheme: light;
 }
 
@@ -122,6 +125,17 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* El isotipo es negro: sobre fondo oscuro hay que cambiarlo por el blanco. */

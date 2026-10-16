@@ -5,6 +5,7 @@ import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/UserMenu";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -52,7 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <header className="sticky top-0 z-10 border-b border-border bg-card/85 backdrop-blur">
+        <header className="sticky top-0 z-10 min-h-[var(--header-alto)] border-b border-border bg-card/85 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
             <Link href="/" className="flex items-center gap-2.5">
               <Logo className="h-9 w-auto" />
@@ -63,7 +64,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <span className="text-xs text-muted">Tecnología usada, revisada y a buen precio</span>
               </span>
             </Link>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <UserMenu />
+            </div>
           </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>

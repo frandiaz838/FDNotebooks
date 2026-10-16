@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogoutButton } from "@/components/LogoutButton";
-import { Reloj } from "@/components/Reloj";
 
 export function AdminHeader() {
   const pathname = usePathname();
@@ -31,28 +29,23 @@ export function AdminHeader() {
           </Link>
         )}
       </div>
-      <div className="flex flex-col gap-2 sm:items-end">
-        <Reloj />
+
+      {isListado && (
         <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
-        {isListado && (
-          <>
-            <Link
-              href="/admin/notebooks/nueva"
-              className="btn-accent col-span-2 order-first sm:order-none sm:w-auto"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[2.5]">
-                <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-              </svg>
-              Nueva publicación
-            </Link>
-            <Link href="/admin/ganancias" className="btn-secondary sm:w-auto">
-              Ganancias
-            </Link>
-          </>
-        )}
-          <LogoutButton className={isListado ? "sm:w-auto" : "col-span-2 sm:w-auto"} />
+          <Link
+            href="/admin/notebooks/nueva"
+            className="btn-accent col-span-2 order-first sm:order-none sm:w-auto"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[2.5]">
+              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+            </svg>
+            Nueva publicación
+          </Link>
+          <Link href="/admin/ganancias" className="btn-secondary col-span-2 sm:w-auto">
+            Ganancias
+          </Link>
         </div>
-      </div>
+      )}
     </div>
   );
 }

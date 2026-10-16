@@ -48,6 +48,12 @@ export function etiquetaMes(fecha: Date) {
   return mayuscula(formatoMes.format(fecha));
 }
 
+export function etiquetaMesDesdeClave(clave: string) {
+  const [anio, mes] = clave.split("-").map(Number);
+  // Mediodía: evita que el cambio de zona corra la fecha al mes anterior.
+  return etiquetaMes(new Date(anio, mes - 1, 1, 12));
+}
+
 export function formatearFecha(iso: string | null) {
   if (!iso) return "—";
   return formatoDia.format(new Date(iso));
