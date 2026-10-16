@@ -20,7 +20,7 @@ export function NotebookGallery({ fotos, alt }: { fotos: string[]; alt: string }
 
   if (fotos.length === 0) {
     return (
-      <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-slate-100 text-sm text-muted">
+      <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-neutral-soft text-sm text-muted">
         Sin fotos
       </div>
     );
@@ -31,7 +31,7 @@ export function NotebookGallery({ fotos, alt }: { fotos: string[]; alt: string }
       <button
         type="button"
         onClick={() => setLightboxOpen(true)}
-        className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-2xl bg-slate-100"
+        className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-2xl bg-neutral-soft"
       >
         <Image
           src={fotos[activeIndex]}

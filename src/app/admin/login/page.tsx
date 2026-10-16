@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
           </div>
 
           {error && (
-            <p className="rounded-xl border border-red-200 bg-danger-soft px-3.5 py-2.5 text-sm text-danger">
+            <p className="rounded-xl border border-danger-border bg-danger-soft px-3.5 py-2.5 text-sm text-danger">
               {error}
             </p>
           )}

@@ -511,7 +511,7 @@ export function NotebookForm(props: Props) {
       </Section>
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-danger-soft px-4 py-3 text-sm text-danger">
+        <p className="rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}

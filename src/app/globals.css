@@ -6,6 +6,8 @@
   --muted: #64748b;
   --border: #e2e8f0;
   --card: #ffffff;
+  --surface-hover: #f8fafc;
+  --neutral-soft: #f1f5f9;
   --whatsapp: #25d366;
   --whatsapp-hover: #1ebe57;
   --accent: #2563eb;
@@ -15,6 +17,78 @@
   --accent-gradient-to: #7c3aed;
   --danger: #dc2626;
   --danger-soft: #fef2f2;
+  --danger-border: #fecaca;
+  --danger-soft-hover: #fee2e2;
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --warning: #b45309;
+  --warning-soft: #fffbeb;
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #1e293b;
+  color-scheme: light;
+}
+
+/* El tema oscuro va en dos bloques: el primero cubre a quien tiene el
+   sistema en oscuro y nunca tocó el switch, el segundo a quien lo eligió
+   a mano. El verde de WhatsApp no cambia nunca. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0b1120;
+    --foreground: #e6ebf5;
+    --muted: #94a3b8;
+    --border: #22304a;
+    --card: #121a2b;
+    --surface-hover: #1a2334;
+    --neutral-soft: #1b2436;
+    --accent: #60a5fa;
+    --accent-hover: #93c5fd;
+    --accent-soft: #15233d;
+    --accent-gradient-from: #2563eb;
+    --accent-gradient-to: #8b5cf6;
+    --danger: #f87171;
+    --danger-soft: #2a1515;
+    --danger-border: #512626;
+    --danger-soft-hover: #3a1b1b;
+    --success: #34d399;
+    --success-soft: #0f2a22;
+    --warning: #fbbf24;
+    --warning-soft: #2c2110;
+    --info: #60a5fa;
+    --info-soft: #16243d;
+    --btn-primary-text: #0b1120;
+    --btn-primary-hover: #cbd5e1;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: #0b1120;
+  --foreground: #e6ebf5;
+  --muted: #94a3b8;
+  --border: #22304a;
+  --card: #121a2b;
+  --surface-hover: #1a2334;
+  --neutral-soft: #1b2436;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-soft: #15233d;
+  --accent-gradient-from: #2563eb;
+  --accent-gradient-to: #8b5cf6;
+  --danger: #f87171;
+  --danger-soft: #2a1515;
+  --danger-border: #512626;
+  --danger-soft-hover: #3a1b1b;
+  --success: #34d399;
+  --success-soft: #0f2a22;
+  --warning: #fbbf24;
+  --warning-soft: #2c2110;
+  --info: #60a5fa;
+  --info-soft: #16243d;
+  --btn-primary-text: #0b1120;
+  --btn-primary-hover: #cbd5e1;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -23,6 +97,8 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-card: var(--card);
+  --color-surface-hover: var(--surface-hover);
+  --color-neutral-soft: var(--neutral-soft);
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-hover: var(--whatsapp-hover);
   --color-accent: var(--accent);
@@ -32,6 +108,13 @@
   --color-accent-gradient-to: var(--accent-gradient-to);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -39,6 +122,28 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* El isotipo es negro: sobre fondo oscuro hay que cambiarlo por el blanco. */
+.logo-oscuro {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-claro {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .logo-oscuro {
+    display: block;
+  }
+}
+
+:root[data-theme="dark"] .logo-claro {
+  display: none;
+}
+
+:root[data-theme="dark"] .logo-oscuro {
+  display: block;
 }
 
 .input {
@@ -50,11 +155,11 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-[var(--btn-primary-text)] transition-colors duration-200 hover:bg-[var(--btn-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 .btn-secondary {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 .btn-accent {
@@ -62,5 +167,5 @@ body {
 }
 
 .btn-danger {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-red-200 bg-danger-soft px-4 py-2 text-sm font-semibold text-danger transition-colors duration-200 hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-danger-border bg-danger-soft px-4 py-2 text-sm font-semibold text-danger transition-colors duration-200 hover:bg-[var(--danger-soft-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
 }

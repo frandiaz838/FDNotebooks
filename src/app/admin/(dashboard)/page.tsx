@@ -11,7 +11,7 @@ export default async function AdminPage() {
     .order("creado_en", { ascending: false });
 
   if (error) {
-    return <p className="text-sm text-red-600">Error cargando notebooks: {error.message}</p>;
+    return <p className="text-sm text-danger">Error cargando notebooks: {error.message}</p>;
   }
 
   return (

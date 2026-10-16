@@ -13,7 +13,7 @@ export function NotebookCard({ notebook }: { notebook: Notebook }) {
       href={`/notebooks/${notebook.id}`}
       className="card group flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[0_12px_32px_-8px_rgba(37,99,235,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
     >
-      <div className="relative aspect-[4/3] w-full bg-slate-100">
+      <div className="relative aspect-[4/3] w-full bg-neutral-soft">
         {foto ? (
           <Image
             src={foto}

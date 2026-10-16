@@ -173,9 +173,9 @@ export function AdminNotebookList({ notebooks }: { notebooks: Notebook[] }) {
 }
 
 function estadoBadge(notebook: Notebook) {
-  if (notebook.disponible) return { label: "Disponible", className: "bg-emerald-50 text-emerald-700" };
-  if (notebook.suspendida) return { label: "Suspendida", className: "bg-amber-50 text-amber-700" };
-  return { label: "Vendida", className: "bg-slate-100 text-muted" };
+  if (notebook.disponible) return { label: "Disponible", className: "bg-success-soft text-success" };
+  if (notebook.suspendida) return { label: "Suspendida", className: "bg-warning-soft text-warning" };
+  return { label: "Vendida", className: "bg-neutral-soft text-muted" };
 }
 
 function NotebookRow({
@@ -204,7 +204,7 @@ function NotebookRow({
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+        <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-neutral-soft">
           {notebook.fotos[0] && (
             <Image
               src={notebook.fotos[0]}

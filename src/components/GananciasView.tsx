@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Notebook } from "@/lib/types";
 import {
@@ -10,7 +10,7 @@ import {
   type MesVentas,
   type ResumenMoneda,
 } from "@/lib/ganancias";
-import { claveMes, etiquetaMes, formatearFecha, formatearFechaHora } from "@/lib/fechas";
+import { claveMes, etiquetaMes, formatearFecha } from "@/lib/fechas";
 import { ManualSaleModal } from "@/components/ManualSaleModal";
 import { EditSaleModal } from "@/components/EditSaleModal";
 import { ExportCsvButton } from "@/components/ExportCsvButton";
@@ -25,7 +25,7 @@ function plural(cantidad: number) {
 }
 
 function gananciaColor(valor: number) {
-  return valor >= 0 ? "text-emerald-700" : "text-danger";
+  return valor >= 0 ? "text-success" : "text-danger";
 }
 
 const STAT_ICONS = {
@@ -115,18 +115,15 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:items-end">
-          <Reloj />
-          <div className="flex gap-2">
-            <ExportCsvButton vendidas={vendidas} />
-            <button
-              type="button"
-              onClick={() => setShowManual(true)}
-              className="btn-accent px-4 py-2 text-sm"
-            >
-              + Cargar venta manual
-            </button>
-          </div>
+        <div className="flex gap-2">
+          <ExportCsvButton vendidas={vendidas} />
+          <button
+            type="button"
+            onClick={() => setShowManual(true)}
+            className="btn-accent px-4 py-2 text-sm"
+          >
+            + Cargar venta manual
+          </button>
         </div>
       </div>
 
@@ -197,29 +194,6 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
   );
 }
 
-function Reloj() {
-  const [ahora, setAhora] = useState<Date | null>(null);
-
-  useEffect(() => {
-    setAhora(new Date());
-    const id = setInterval(() => setAhora(new Date()), 30_000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Recién se pinta en el cliente: la hora del server no es la del navegador.
-  if (!ahora) return <span className="h-4" />;
-
-  return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-muted">
-      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 7v5l3 3" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      {formatearFechaHora(ahora)}
-    </span>
-  );
-}
-
 function TarjetaMes({ resumen }: { resumen: ResumenMoneda }) {
   return (
     <div className="card overflow-hidden">
@@ -279,24 +253,24 @@ function BloqueMes({
       </div>
 
       {mes.resumenes.map((resumen) => (
-        <div
-          key={resumen.moneda}
-          className="grid grid-cols-3 gap-3 rounded-xl border border-border bg-card px-4 py-3 text-xs"
-        >
-          <div className="min-w-0">
-            <p className="text-muted">Costo {resumen.moneda}</p>
-            <p className="truncate font-medium text-foreground">{money(resumen.costoTotal)}</p>
-          </div>
-          <div className="min-w-0">
-            <p className="text-muted">Ingresos</p>
-            <p className="truncate font-medium text-foreground">{money(resumen.ingresosTotal)}</p>
-          </div>
-          <div className="min-w-0">
-            <p className="text-muted">Ganancia</p>
-            <p className={`truncate font-semibold ${gananciaColor(resumen.gananciaTotal)}`}>
-              {money(resumen.gananciaTotal)}
-            </p>
-          </div>
+        <div key={resumen.moneda} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <TarjetaTotal
+            icon={STAT_ICONS.costo}
+            label={`Costo ${resumen.moneda}`}
+            value={money(resumen.costoTotal)}
+          />
+          <TarjetaTotal
+            icon={STAT_ICONS.ingresos}
+            label={`Ingresos ${resumen.moneda}`}
+            value={money(resumen.ingresosTotal)}
+          />
+          <TarjetaTotal
+            icon={STAT_ICONS.vendidas}
+            label={`Ganancia ${resumen.moneda}`}
+            value={money(resumen.gananciaTotal)}
+            margen={resumen.margen}
+            tono={resumen.gananciaTotal >= 0 ? "exito" : "peligro"}
+          />
         </div>
       ))}
 
@@ -413,6 +387,70 @@ function BloqueMes({
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  );
+}
+
+const TONOS = {
+  neutro: {
+    tarjeta: "",
+    icono: "bg-accent-soft text-accent",
+    valor: "text-foreground",
+    chip: "bg-accent-soft text-accent",
+  },
+  exito: {
+    tarjeta: "border-success/40 bg-success-soft",
+    icono: "bg-success/15 text-success",
+    valor: "text-success",
+    chip: "bg-success/15 text-success",
+  },
+  peligro: {
+    tarjeta: "border-danger/40 bg-danger-soft",
+    icono: "bg-danger/15 text-danger",
+    valor: "text-danger",
+    chip: "bg-danger/15 text-danger",
+  },
+};
+
+function TarjetaTotal({
+  icon,
+  label,
+  value,
+  margen,
+  tono = "neutro",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  margen?: number | null;
+  tono?: keyof typeof TONOS;
+}) {
+  const estilos = TONOS[tono];
+
+  return (
+    <div
+      className={`card flex flex-col gap-2 p-4 ${estilos.tarjeta} ${
+        tono === "neutro" ? "" : "col-span-2 sm:col-span-1"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${estilos.icono}`}
+        >
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
+            {icon}
+          </svg>
+        </span>
+        <p className="min-w-0 truncate text-xs text-muted">{label}</p>
+      </div>
+      <div className="flex flex-wrap items-baseline gap-2">
+        <p className={`text-lg font-bold ${estilos.valor}`}>{value}</p>
+        {margen !== null && margen !== undefined && (
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${estilos.chip}`}>
+            {margen.toFixed(0)}% margen
+          </span>
+        )}
       </div>
     </div>
   );

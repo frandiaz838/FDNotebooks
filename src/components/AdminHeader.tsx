@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "@/components/LogoutButton";
+import { Reloj } from "@/components/Reloj";
 
 export function AdminHeader() {
   const pathname = usePathname();
@@ -30,7 +31,9 @@ export function AdminHeader() {
           </Link>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
+      <div className="flex flex-col gap-2 sm:items-end">
+        <Reloj />
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
         {isListado && (
           <>
             <Link
@@ -47,7 +50,8 @@ export function AdminHeader() {
             </Link>
           </>
         )}
-        <LogoutButton className={isListado ? "sm:w-auto" : "col-span-2 sm:w-auto"} />
+          <LogoutButton className={isListado ? "sm:w-auto" : "col-span-2 sm:w-auto"} />
+        </div>
       </div>
     </div>
   );

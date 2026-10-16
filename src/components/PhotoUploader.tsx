@@ -75,10 +75,10 @@ export function PhotoUploader({
         className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
           dragActive
             ? "border-accent bg-accent-soft"
-            : "border-border bg-slate-50 hover:border-accent/60 hover:bg-accent-soft/40"
+            : "border-border bg-surface-hover hover:border-accent/60 hover:bg-accent-soft/40"
         } disabled:cursor-not-allowed disabled:opacity-60`}
       >
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-border">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-sm ring-1 ring-border">
           <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-accent stroke-2">
             <path
               d="M12 16V4m0 0 4 4m-4-4-4 4M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"
@@ -109,7 +109,7 @@ export function PhotoUploader({
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {value.map((url, index) => (
             <div key={url} className="group relative flex flex-col gap-1.5">
-              <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-slate-100">
+              <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-neutral-soft">
                 <Image src={url} alt="" fill sizes="150px" className="object-cover" />
                 {index === 0 ? (
                   <span className="absolute left-1.5 top-1.5 rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-semibold text-white">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FloatingWhatsAppButton } from "@/components/FloatingWhatsAppButton";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,7 +40,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Aplica el tema elegido antes del primer pintado: si esperara a React,
+            se vería un flash blanco al entrar en modo oscuro. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("fd-tema");if(t==="dark"||t==="light"){document.documentElement.dataset.theme=t}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <header className="sticky top-0 z-10 border-b border-border bg-card/85 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
@@ -52,6 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <span className="text-xs text-muted">Tecnología usada, revisada y a buen precio</span>
               </span>
             </Link>
+            <ThemeToggle />
           </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>

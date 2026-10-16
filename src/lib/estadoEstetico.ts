@@ -1,20 +1,20 @@
 import type { EstadoBateria, EstadoEstetico } from "@/lib/types";
 
 const ESTILOS: Record<EstadoEstetico, string> = {
-  Nuevo: "bg-blue-50 text-blue-700",
-  Excelente: "bg-emerald-50 text-emerald-700",
-  "Muy bueno": "bg-teal-50 text-teal-700",
-  "Bueno (detalles carcasa)": "bg-amber-50 text-amber-700",
-  Outlet: "bg-slate-100 text-slate-600",
+  Nuevo: "bg-info-soft text-info",
+  Excelente: "bg-success-soft text-success",
+  "Muy bueno": "bg-success-soft text-success",
+  "Bueno (detalles carcasa)": "bg-warning-soft text-warning",
+  Outlet: "bg-neutral-soft text-muted",
 };
 
 export function estadoEsteticoClasses(estado: EstadoEstetico) {
-  return ESTILOS[estado] ?? "bg-slate-100 text-muted";
+  return ESTILOS[estado] ?? "bg-neutral-soft text-muted";
 }
 
 const ESTILOS_BATERIA: Record<EstadoBateria, string> = {
-  Buena: "text-emerald-700",
-  Regular: "text-amber-700",
+  Buena: "text-success",
+  Regular: "text-warning",
   Agotada: "text-danger",
 };
 
