@@ -1,0 +1,58 @@
+// El server corre en UTC y el navegador en hora local: si cada uno formatea por
+// su cuenta, una venta cargada de noche cae en días (y meses) distintos. Fijamos
+// la zona del vendedor para que los dos agrupen y muestren lo mismo.
+const ZONA = "America/Argentina/Buenos_Aires";
+
+const formatoClave = new Intl.DateTimeFormat("es-AR", {
+  timeZone: ZONA,
+  year: "numeric",
+  month: "2-digit",
+});
+
+const formatoMes = new Intl.DateTimeFormat("es-AR", {
+  timeZone: ZONA,
+  year: "numeric",
+  month: "long",
+});
+
+const formatoDia = new Intl.DateTimeFormat("es-AR", {
+  timeZone: ZONA,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const formatoFechaHora = new Intl.DateTimeFormat("es-AR", {
+  timeZone: ZONA,
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function mayuscula(texto: string) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+export function claveMes(fecha: Date) {
+  const partes = Object.fromEntries(
+    formatoClave.formatToParts(fecha).map((parte) => [parte.type, parte.value])
+  );
+  // es-AR ignora el "2-digit" del mes, y sin el cero adelante "2026-9" ordena
+  // por encima de "2026-10" al comparar como texto.
+  return `${partes.year}-${partes.month.padStart(2, "0")}`;
+}
+
+export function etiquetaMes(fecha: Date) {
+  return mayuscula(formatoMes.format(fecha));
+}
+
+export function formatearFecha(iso: string | null) {
+  if (!iso) return "—";
+  return formatoDia.format(new Date(iso));
+}
+
+export function formatearFechaHora(fecha: Date) {
+  return mayuscula(formatoFechaHora.format(fecha));
+}

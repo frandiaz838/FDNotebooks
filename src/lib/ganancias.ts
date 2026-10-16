@@ -1,4 +1,14 @@
 import type { Notebook } from "@/lib/types";
+import { claveMes, etiquetaMes } from "@/lib/fechas";
+
+const SIN_FECHA = "sin-fecha";
+
+export interface MesVentas {
+  clave: string;
+  etiqueta: string;
+  items: Notebook[];
+  resumenes: ResumenMoneda[];
+}
 
 export interface ResumenMoneda {
   moneda: string;
@@ -47,7 +57,40 @@ export function calcularResumen(vendidas: Notebook[]): ResumenMoneda[] {
       margen: ingresosTotal > 0 ? (gananciaTotal / ingresosTotal) * 100 : null,
       diasPromedio,
     };
-  });
+  })
+  .sort((a, b) => a.moneda.localeCompare(b.moneda));
+}
+
+function masRecientePrimero(a: Notebook, b: Notebook) {
+  const fa = a.vendido_en ? new Date(a.vendido_en).getTime() : 0;
+  const fb = b.vendido_en ? new Date(b.vendido_en).getTime() : 0;
+  return fb - fa;
+}
+
+export function agruparPorMes(vendidas: Notebook[]): MesVentas[] {
+  const porMes = new Map<string, Notebook[]>();
+  for (const n of vendidas) {
+    const clave = n.vendido_en ? claveMes(new Date(n.vendido_en)) : SIN_FECHA;
+    const lista = porMes.get(clave) ?? [];
+    lista.push(n);
+    porMes.set(clave, lista);
+  }
+
+  return Array.from(porMes.entries())
+    .sort(([claveA], [claveB]) => {
+      if (claveA === SIN_FECHA) return 1;
+      if (claveB === SIN_FECHA) return -1;
+      return claveB.localeCompare(claveA);
+    })
+    .map(([clave, items]) => ({
+      clave,
+      etiqueta:
+        clave === SIN_FECHA
+          ? "Sin fecha de venta"
+          : etiquetaMes(new Date(items[0].vendido_en as string)),
+      items: [...items].sort(masRecientePrimero),
+      resumenes: calcularResumen(items),
+    }));
 }
 
 export function gananciaItem(n: Notebook) {
