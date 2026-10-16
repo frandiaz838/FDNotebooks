@@ -372,7 +372,7 @@ function BotonPaso({
       onClick={onClick}
       disabled={disabled}
       aria-label={etiqueta}
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-40"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
         <path
@@ -394,16 +394,14 @@ function TarjetaGanancia({
   anterior: ResumenMoneda | null;
   moneda: string;
 }) {
-  // La comparación usa solo las ventas con costo: si no, un mes con una venta
-  // sin costo cargado "crece" por un dato que falta.
-  const variacionPorcentual = variacion(
-    resumen.gananciaConCosto,
-    anterior?.gananciaConCosto ?? 0
-  );
+  // Compara los mismos totales que muestra la tarjeta: un porcentaje debajo de
+  // una cifra se lee como el cambio de esa cifra, no de otra base.
+  const variacionPorcentual = variacion(resumen.gananciaTotal, anterior?.gananciaTotal ?? 0);
   const subio = (variacionPorcentual ?? 0) >= 0;
 
   return (
-    <div className="card col-span-2 flex flex-col gap-2 p-5 lg:grid lg:grid-rows-subgrid lg:row-span-3">
+    // El borde de .card no está en capa y le gana a la utilidad: hay que forzarlo.
+    <div className="card col-span-2 flex flex-col gap-2 !border-accent/35 p-5 shadow-sm lg:grid lg:grid-rows-subgrid lg:row-span-3">
       <p className="text-xs font-medium uppercase tracking-wide text-muted">
         Ganancia ({moneda})
       </p>
@@ -421,10 +419,10 @@ function TarjetaGanancia({
         )}
       </p>
       {variacionPorcentual === null ? (
-        <p className="text-xs text-muted">Sin ventas comparables el mes anterior</p>
+        <p className="text-[13px] text-muted">Sin ventas el mes anterior</p>
       ) : (
         <p
-          className={`flex items-center gap-1 text-xs font-semibold ${
+          className={`flex items-center gap-1 text-[13px] font-semibold ${
             subio ? "text-success" : "text-danger"
           }`}
         >

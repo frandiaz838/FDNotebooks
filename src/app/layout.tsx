@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
+import { RelojHeader } from "@/components/RelojHeader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -64,9 +65,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <span className="text-xs text-muted">Tecnología usada, revisada y a buen precio</span>
               </span>
             </Link>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <UserMenu />
+            <div className="flex items-center gap-3">
+              <RelojHeader />
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <UserMenu />
+              </div>
             </div>
           </div>
         </header>

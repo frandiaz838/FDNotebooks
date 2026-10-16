@@ -9,10 +9,8 @@ export interface ResumenMoneda {
   costoTotal: number;
   ingresosTotal: number;
   gananciaTotal: number;
-  /** Base comparable: deja afuera las ventas sin costo cargado, que figuran
-   *  como ganancia pura y distorsionarían el margen y la comparación. */
-  ingresosConCosto: number;
-  gananciaConCosto: number;
+  /** Calculado solo sobre las ventas con costo cargado: las que no lo tienen
+   *  figuran como ganancia pura y darían un margen inflado. */
   margen: number | null;
   diasPromedio: number | null;
   sinCosto: number;
@@ -72,8 +70,6 @@ export function resumirVentas(items: Notebook[], moneda: string): ResumenMoneda 
     costoTotal,
     ingresosTotal,
     gananciaTotal,
-    ingresosConCosto,
-    gananciaConCosto,
     margen: ingresosConCosto > 0 ? (gananciaConCosto / ingresosConCosto) * 100 : null,
     diasPromedio: dias.length > 0 ? dias.reduce((a, b) => a + b, 0) / dias.length : null,
     sinCosto: propios.filter(sinCosto).length,

@@ -22,13 +22,18 @@ const formatoDia = new Intl.DateTimeFormat("es-AR", {
   year: "numeric",
 });
 
-const formatoFechaHora = new Intl.DateTimeFormat("es-AR", {
+const formatoDiaCorto = new Intl.DateTimeFormat("es-AR", {
   timeZone: ZONA,
-  weekday: "long",
+  weekday: "short",
   day: "numeric",
-  month: "long",
+  month: "short",
+});
+
+const formatoHora = new Intl.DateTimeFormat("es-AR", {
+  timeZone: ZONA,
   hour: "2-digit",
   minute: "2-digit",
+  hour12: false,
 });
 
 function mayuscula(texto: string) {
@@ -59,6 +64,8 @@ export function formatearFecha(iso: string | null) {
   return formatoDia.format(new Date(iso));
 }
 
-export function formatearFechaHora(fecha: Date) {
-  return mayuscula(formatoFechaHora.format(fecha));
+/** "vie 16 oct · 17:41" */
+export function formatearFechaHoraCorta(fecha: Date) {
+  const dia = formatoDiaCorto.format(fecha).replace(/,/g, "");
+  return `${dia} · ${formatoHora.format(fecha)}`;
 }

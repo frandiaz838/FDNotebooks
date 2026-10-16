@@ -3,8 +3,8 @@
 :root {
   --background: #f6f7fb;
   --foreground: #0f172a;
-  --muted: #5b6778;
-  --border: #e2e8f0;
+  --muted: #555f70;
+  --border: #d0d9e4;
   --card: #ffffff;
   --surface-hover: #f8fafc;
   --neutral-soft: #f1f5f9;
@@ -40,8 +40,8 @@
   :root:not([data-theme="light"]) {
     --background: #0b1120;
     --foreground: #e6ebf5;
-    --muted: #94a3b8;
-    --border: #22304a;
+    --muted: #9fadc0;
+    --border: #2f4061;
     --card: #121a2b;
     --surface-hover: #1a2334;
     --neutral-soft: #1b2436;
@@ -69,8 +69,8 @@
 :root[data-theme="dark"] {
   --background: #0b1120;
   --foreground: #e6ebf5;
-  --muted: #94a3b8;
-  --border: #22304a;
+  --muted: #9fadc0;
+  --border: #2f4061;
   --card: #121a2b;
   --surface-hover: #1a2334;
   --neutral-soft: #1b2436;
@@ -161,7 +161,7 @@ body {
 }
 
 .input {
-  @apply w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/20;
+  @apply w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20;
 }
 
 .card {
