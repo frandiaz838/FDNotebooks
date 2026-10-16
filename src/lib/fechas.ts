@@ -64,8 +64,12 @@ export function formatearFecha(iso: string | null) {
   return formatoDia.format(new Date(iso));
 }
 
-/** "vie 16 oct · 17:41" */
-export function formatearFechaHoraCorta(fecha: Date) {
-  const dia = formatoDiaCorto.format(fecha).replace(/,/g, "");
-  return `${dia} · ${formatoHora.format(fecha)}`;
+/** { dia: "vie 16 oct", hora: "18", minuto: "06" } */
+export function partesFechaHora(fecha: Date) {
+  const [hora, minuto] = formatoHora.format(fecha).split(":");
+  return {
+    dia: formatoDiaCorto.format(fecha).replace(/,/g, ""),
+    hora,
+    minuto,
+  };
 }

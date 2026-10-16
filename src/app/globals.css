@@ -138,6 +138,27 @@ body {
   }
 }
 
+/* Los dos puntos del reloj laten para que se note que está vivo. */
+@keyframes latido-dos-puntos {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.dos-puntos-vivos {
+  animation: latido-dos-puntos 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dos-puntos-vivos {
+    animation: none;
+  }
+}
+
 /* El isotipo es negro: sobre fondo oscuro hay que cambiarlo por el blanco. */
 .logo-oscuro {
   display: none;
