@@ -10,12 +10,13 @@ export default function CargandoGanancias() {
         <Bloque className="h-10 w-72" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-7">
         <Bloque className="col-span-2 h-32" />
         <Bloque className="h-32" />
         <Bloque className="h-32" />
         <Bloque className="h-32" />
         <Bloque className="h-32" />
+        <Bloque className="col-span-2 h-32 lg:col-span-1" />
       </div>
 
       <Bloque className="h-6 w-96 max-w-full" />

@@ -35,6 +35,10 @@ function porcentaje(valor: number) {
   return `${nfDecimal.format(valor)}%`;
 }
 
+function plural(cantidad: number) {
+  return cantidad === 1 ? "venta" : "ventas";
+}
+
 function normalizar(texto: string) {
   return texto
     .toLowerCase()
@@ -42,7 +46,8 @@ function normalizar(texto: string) {
     .replace(/[̀-ͯ]/g, "");
 }
 
-type Orden = "fecha" | "ganancia" | "margen";
+type CampoOrden = "fecha" | "costo" | "venta" | "ganancia" | "margen" | "dias";
+type Orden = { campo: CampoOrden; direccion: "asc" | "desc" };
 
 export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
   const router = useRouter();
@@ -52,7 +57,7 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
   const [claveActiva, setClaveActiva] = useState(mesActual);
   const [monedaElegida, setMonedaElegida] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [orden, setOrden] = useState<Orden>("fecha");
+  const [orden, setOrden] = useState<Orden>({ campo: "fecha", direccion: "desc" });
   const [showManual, setShowManual] = useState(false);
   const [editTarget, setEditTarget] = useState<Notebook | null>(null);
   const [porBorrar, setPorBorrar] = useState<Notebook | null>(null);
@@ -78,6 +83,7 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
   const resumen = resumirVentas(ventasPeriodo, moneda);
   const resumenAnterior = resumenDelMesAnterior(visibles, periodo.clave, moneda);
   const historico = resumirVentas(visibles, moneda);
+  const primeraSinCosto = ventasPeriodo.find(sinCosto) ?? null;
 
   const filas = ordenar(filtrar(ventasPeriodo, busqueda), orden);
 
@@ -118,6 +124,14 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
       setPorBorrar(null);
       void borrarDeVerdad(notebook);
     }, 6000);
+  }
+
+  function onOrdenar(campo: CampoOrden) {
+    setOrden((previo) =>
+      previo.campo === campo
+        ? { campo, direccion: previo.direccion === "asc" ? "desc" : "asc" }
+        : { campo, direccion: "desc" }
+    );
   }
 
   function deshacerBorrado() {
@@ -186,25 +200,55 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+      {/* Subgrid: todas las tarjetas comparten las filas, así etiquetas y
+          valores quedan a la misma altura aunque el número cambie de tamaño. */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-7 lg:grid-rows-[auto_auto_auto]">
         <TarjetaGanancia resumen={resumen} anterior={resumenAnterior} moneda={moneda} />
         <Kpi label={`Ingresos (${moneda})`} valor={monto(resumen.ingresosTotal)} />
         <Kpi label={`Costo (${moneda})`} valor={monto(resumen.costoTotal)} />
+        <Kpi label="Margen" valor={resumen.margen !== null ? porcentaje(resumen.margen) : "—"} />
+        <Kpi label="Ventas" valor={`${resumen.cantidad}`} unidad={plural(resumen.cantidad)} />
         <Kpi
-          label="Margen"
-          valor={resumen.margen !== null ? porcentaje(resumen.margen) : "—"}
-        />
-        <Kpi
-          label="Ventas · Días prom."
-          valor={`${resumen.cantidad} · ${
-            resumen.diasPromedio !== null ? nfEntero.format(resumen.diasPromedio) : "—"
-          }`}
+          className="col-span-2 lg:col-span-1"
+          label="Días prom."
+          valor={resumen.diasPromedio !== null ? nfEntero.format(resumen.diasPromedio) : "—"}
+          unidad={resumen.diasPromedio !== null ? "días" : undefined}
         />
       </div>
 
-      <p className="text-lg font-semibold text-foreground">
-        Histórico: {moneda} {monto(historico.gananciaTotal)} de ganancia en{" "}
-        {historico.cantidad} {historico.cantidad === 1 ? "venta" : "ventas"}
+      {resumen.sinCosto > 0 && primeraSinCosto && (
+        <p
+          role="status"
+          className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-warning"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4 shrink-0 fill-none stroke-current stroke-2">
+            <path
+              d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>
+            {resumen.sinCosto === 1
+              ? "1 venta sin costo cargado: queda fuera del margen y de la comparación."
+              : `${resumen.sinCosto} ventas sin costo cargado: quedan fuera del margen y de la comparación.`}
+          </span>
+          <button
+            type="button"
+            onClick={() => setEditTarget(primeraSinCosto)}
+            className="font-semibold underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/50"
+          >
+            Cargar costo
+          </button>
+        </p>
+      )}
+
+      <p className="text-[15px]">
+        <span className="text-muted">Acumulado total</span>{" "}
+        <span className="font-semibold text-foreground">
+          {moneda} {monto(historico.gananciaTotal)} · {historico.cantidad}{" "}
+          {plural(historico.cantidad)}
+        </span>
       </p>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -228,45 +272,31 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
           />
         </label>
 
-        <label className="flex items-center gap-2 whitespace-nowrap text-sm text-muted">
+        {/* En desktop se ordena desde los encabezados de la tabla. */}
+        <label className="flex items-center gap-2 whitespace-nowrap text-sm text-muted sm:hidden">
           Ordenar por
           <select
-            value={orden}
-            onChange={(evento) => setOrden(evento.target.value as Orden)}
+            value={orden.campo}
+            onChange={(evento) =>
+              setOrden({ campo: evento.target.value as CampoOrden, direccion: "desc" })
+            }
             className="input w-auto py-2"
           >
             <option value="fecha">Fecha</option>
             <option value="ganancia">Ganancia</option>
             <option value="margen">Margen</option>
+            <option value="dias">Días</option>
           </select>
         </label>
       </div>
-
-      {resumen.sinCosto > 0 && (
-        <p
-          role="status"
-          className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-warning"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden className="mt-0.5 h-4 w-4 shrink-0 fill-none stroke-current stroke-2">
-            <path
-              d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>
-            {resumen.sinCosto === 1
-              ? "1 venta sin costo cargado: se cuenta como ganancia completa, así que el margen puede estar sobreestimado."
-              : `${resumen.sinCosto} ventas sin costo cargado: se cuentan como ganancia completa, así que el margen puede estar sobreestimado.`}
-          </span>
-        </p>
-      )}
 
       <TablaVentas
         filas={filas}
         moneda={moneda}
         hayVentas={ventasPeriodo.length > 0}
         etiquetaPeriodo={periodo.etiqueta}
+        orden={orden}
+        onOrdenar={onOrdenar}
         onEditar={setEditTarget}
         onBorrar={pedirBorrado}
       />
@@ -298,18 +328,30 @@ function filtrar(items: Notebook[], busqueda: string) {
   return items.filter((n) => normalizar(n.nombre).includes(termino));
 }
 
+function valorOrden(n: Notebook, campo: CampoOrden) {
+  switch (campo) {
+    case "costo":
+      return n.costo ?? -Infinity;
+    case "venta":
+      return ventaItem(n);
+    case "ganancia":
+      return gananciaItem(n);
+    case "margen":
+      return margenItem(n) ?? -Infinity;
+    case "dias":
+      return diasHastaVender(n) ?? -Infinity;
+    default:
+      return n.vendido_en ? new Date(n.vendido_en).getTime() : 0;
+  }
+}
+
 function ordenar(items: Notebook[], orden: Orden) {
-  const copia = [...items];
-  if (orden === "ganancia") {
-    return copia.sort((a, b) => gananciaItem(b) - gananciaItem(a));
-  }
-  if (orden === "margen") {
-    return copia.sort((a, b) => (margenItem(b) ?? -Infinity) - (margenItem(a) ?? -Infinity));
-  }
-  return copia.sort((a, b) => {
-    const fa = a.vendido_en ? new Date(a.vendido_en).getTime() : 0;
-    const fb = b.vendido_en ? new Date(b.vendido_en).getTime() : 0;
-    return fb - fa;
+  const factor = orden.direccion === "asc" ? 1 : -1;
+  return [...items].sort((a, b) => {
+    const va = valorOrden(a, orden.campo);
+    const vb = valorOrden(b, orden.campo);
+    if (va === vb) return 0;
+    return (va < vb ? -1 : 1) * factor;
   });
 }
 
@@ -352,19 +394,34 @@ function TarjetaGanancia({
   anterior: ResumenMoneda | null;
   moneda: string;
 }) {
-  const variacionPorcentual = variacion(resumen.gananciaTotal, anterior?.gananciaTotal ?? 0);
+  // La comparación usa solo las ventas con costo: si no, un mes con una venta
+  // sin costo cargado "crece" por un dato que falta.
+  const variacionPorcentual = variacion(
+    resumen.gananciaConCosto,
+    anterior?.gananciaConCosto ?? 0
+  );
   const subio = (variacionPorcentual ?? 0) >= 0;
 
   return (
-    <div className="card col-span-2 flex flex-col justify-between gap-3 p-5">
+    <div className="card col-span-2 flex flex-col gap-2 p-5 lg:grid lg:grid-rows-subgrid lg:row-span-3">
       <p className="text-xs font-medium uppercase tracking-wide text-muted">
         Ganancia ({moneda})
       </p>
-      <p className="text-[2.5rem] font-bold leading-none tabular-nums text-foreground">
+      <p className="text-[2.5rem] font-bold leading-none tabular-nums text-foreground lg:self-end">
         {monto(resumen.gananciaTotal)}
+        {resumen.sinCosto > 0 && (
+          <span
+            title={`Incluye ${resumen.sinCosto} venta${
+              resumen.sinCosto === 1 ? "" : "s"
+            } sin costo cargado`}
+            className="ml-1 cursor-help align-super text-lg text-warning"
+          >
+            *
+          </span>
+        )}
       </p>
       {variacionPorcentual === null ? (
-        <p className="text-xs text-muted">Sin ventas el mes anterior</p>
+        <p className="text-xs text-muted">Sin ventas comparables el mes anterior</p>
       ) : (
         <p
           className={`flex items-center gap-1 text-xs font-semibold ${
@@ -387,11 +444,25 @@ function TarjetaGanancia({
   );
 }
 
-function Kpi({ label, valor }: { label: string; valor: string }) {
+function Kpi({
+  label,
+  valor,
+  unidad,
+  className = "",
+}: {
+  label: string;
+  valor: string;
+  unidad?: string;
+  className?: string;
+}) {
   return (
-    <div className="card flex flex-col justify-between gap-2 p-4">
+    <div className={`card flex flex-col gap-2 p-4 lg:grid lg:grid-rows-subgrid lg:row-span-3 ${className}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className="text-xl font-semibold tabular-nums text-foreground">{valor}</p>
+      <p className="text-xl font-semibold leading-none tabular-nums text-foreground lg:self-end">
+        {valor}
+        {unidad && <span className="ml-1 text-sm font-normal text-muted">{unidad}</span>}
+      </p>
+      <span />
     </div>
   );
 }
@@ -420,11 +491,51 @@ function AvisoDeshacer({
   );
 }
 
+function ThOrden({
+  campo,
+  orden,
+  onOrdenar,
+  numerica = false,
+  children,
+}: {
+  campo: CampoOrden;
+  orden: Orden;
+  onOrdenar: (campo: CampoOrden) => void;
+  numerica?: boolean;
+  children: React.ReactNode;
+}) {
+  const activo = orden.campo === campo;
+  const ascendente = orden.direccion === "asc";
+
+  return (
+    <th
+      scope="col"
+      aria-sort={activo ? (ascendente ? "ascending" : "descending") : "none"}
+      className={`font-medium ${numerica ? "text-right" : "text-left"}`}
+    >
+      <button
+        type="button"
+        onClick={() => onOrdenar(campo)}
+        className={`group flex w-full items-center gap-1 px-4 py-3 uppercase tracking-wide transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 ${
+          numerica ? "justify-end" : "justify-start"
+        } ${activo ? "text-foreground" : ""}`}
+      >
+        {children}
+        <span aria-hidden className={activo ? "" : "opacity-0 group-hover:opacity-40"}>
+          {activo ? (ascendente ? "▲" : "▼") : "▼"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
 function TablaVentas({
   filas,
   moneda,
   hayVentas,
   etiquetaPeriodo,
+  orden,
+  onOrdenar,
   onEditar,
   onBorrar,
 }: {
@@ -432,6 +543,8 @@ function TablaVentas({
   moneda: string;
   hayVentas: boolean;
   etiquetaPeriodo: string;
+  orden: Orden;
+  onOrdenar: (campo: CampoOrden) => void;
   onEditar: (n: Notebook) => void;
   onBorrar: (n: Notebook) => void;
 }) {
@@ -479,14 +592,24 @@ function TablaVentas({
         <table className="w-full border-collapse text-left text-sm">
           <thead className="sticky top-[var(--header-alto)] z-[5] bg-neutral-soft text-xs uppercase tracking-wide text-muted [&>tr>th:first-child]:rounded-tl-2xl [&>tr>th:last-child]:rounded-tr-2xl">
             <tr>
-              <th scope="col" className="px-4 py-3 font-medium">Fecha</th>
+              <ThOrden campo="fecha" orden={orden} onOrdenar={onOrdenar}>Fecha</ThOrden>
               <th scope="col" className="px-4 py-3 font-medium">Nombre</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Costo ({moneda})</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Venta ({moneda})</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Ganancia ({moneda})</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Margen</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Días</th>
-              <th scope="col" className="px-4 py-3">
+              <ThOrden campo="costo" orden={orden} onOrdenar={onOrdenar} numerica>
+                Costo ({moneda})
+              </ThOrden>
+              <ThOrden campo="venta" orden={orden} onOrdenar={onOrdenar} numerica>
+                Venta ({moneda})
+              </ThOrden>
+              <ThOrden campo="ganancia" orden={orden} onOrdenar={onOrdenar} numerica>
+                Ganancia ({moneda})
+              </ThOrden>
+              <ThOrden campo="margen" orden={orden} onOrdenar={onOrdenar} numerica>
+                Margen
+              </ThOrden>
+              <ThOrden campo="dias" orden={orden} onOrdenar={onOrdenar} numerica>
+                Días
+              </ThOrden>
+              <th scope="col" className="w-px py-3 pl-1 pr-3">
                 <span className="sr-only">Acciones</span>
               </th>
             </tr>
@@ -526,11 +649,11 @@ function TablaVentas({
                   <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums">
                     <ValorMargen margen={margen} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-muted">
+                  <td className="whitespace-nowrap py-3 pl-4 pr-2 text-right tabular-nums text-muted">
                     {dias !== null ? nfEntero.format(dias) : "—"}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3">
-                    <div className="flex justify-end gap-1">
+                  <td className="w-px whitespace-nowrap py-3 pl-1 pr-3">
+                    <div className="flex justify-end gap-0.5">
                       <BotonIcono
                         etiqueta={`Editar la venta de ${n.nombre}`}
                         onClick={() => onEditar(n)}

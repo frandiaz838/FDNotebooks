@@ -9,6 +9,10 @@ export interface ResumenMoneda {
   costoTotal: number;
   ingresosTotal: number;
   gananciaTotal: number;
+  /** Base comparable: deja afuera las ventas sin costo cargado, que figuran
+   *  como ganancia pura y distorsionarían el margen y la comparación. */
+  ingresosConCosto: number;
+  gananciaConCosto: number;
   margen: number | null;
   diasPromedio: number | null;
   sinCosto: number;
@@ -28,6 +32,8 @@ export function gananciaItem(n: Notebook) {
 }
 
 export function margenItem(n: Notebook) {
+  // Sin costo cargado no hay margen que calcular: daría 100% y sería mentira.
+  if (sinCosto(n)) return null;
   const venta = ventaItem(n);
   if (venta <= 0) return null;
   return (gananciaItem(n) / venta) * 100;
@@ -52,6 +58,10 @@ export function resumirVentas(items: Notebook[], moneda: string): ResumenMoneda 
   const ingresosTotal = propios.reduce((suma, n) => suma + ventaItem(n), 0);
   const gananciaTotal = ingresosTotal - costoTotal;
 
+  const conCosto = propios.filter((n) => !sinCosto(n));
+  const ingresosConCosto = conCosto.reduce((suma, n) => suma + ventaItem(n), 0);
+  const gananciaConCosto = ingresosConCosto - conCosto.reduce((suma, n) => suma + (n.costo ?? 0), 0);
+
   const dias = propios
     .map(diasHastaVender)
     .filter((d): d is number => d !== null);
@@ -62,7 +72,9 @@ export function resumirVentas(items: Notebook[], moneda: string): ResumenMoneda 
     costoTotal,
     ingresosTotal,
     gananciaTotal,
-    margen: ingresosTotal > 0 ? (gananciaTotal / ingresosTotal) * 100 : null,
+    ingresosConCosto,
+    gananciaConCosto,
+    margen: ingresosConCosto > 0 ? (gananciaConCosto / ingresosConCosto) * 100 : null,
     diasPromedio: dias.length > 0 ? dias.reduce((a, b) => a + b, 0) / dias.length : null,
     sinCosto: propios.filter(sinCosto).length,
   };
