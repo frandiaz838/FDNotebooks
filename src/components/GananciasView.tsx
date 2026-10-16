@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Notebook } from "@/lib/types";
 import {
@@ -11,6 +11,7 @@ import {
   monedasDe,
   periodosConVentas,
   resumirVentas,
+  sinCosto,
   variacion,
   ventaItem,
   ventasDelPeriodo,
@@ -54,6 +55,8 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
   const [orden, setOrden] = useState<Orden>("fecha");
   const [showManual, setShowManual] = useState(false);
   const [editTarget, setEditTarget] = useState<Notebook | null>(null);
+  const [porBorrar, setPorBorrar] = useState<Notebook | null>(null);
+  const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const indice = Math.max(
     0,
@@ -65,12 +68,16 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
   const moneda =
     monedaElegida && monedas.includes(monedaElegida) ? monedaElegida : monedas[0] ?? "ARS";
 
-  const ventasPeriodo = ventasDelPeriodo(vendidas, periodo.clave).filter(
+  // La venta en espera de borrado ya no cuenta para nada: si siguiera sumando
+  // en los totales, los numeros no coincidirian con la tabla.
+  const visibles = vendidas.filter((n) => n.id !== porBorrar?.id);
+
+  const ventasPeriodo = ventasDelPeriodo(visibles, periodo.clave).filter(
     (n) => n.moneda === moneda
   );
   const resumen = resumirVentas(ventasPeriodo, moneda);
-  const resumenAnterior = resumenDelMesAnterior(vendidas, periodo.clave, moneda);
-  const historico = resumirVentas(vendidas, moneda);
+  const resumenAnterior = resumenDelMesAnterior(visibles, periodo.clave, moneda);
+  const historico = resumirVentas(visibles, moneda);
 
   const filas = ordenar(filtrar(ventasPeriodo, busqueda), orden);
 
@@ -93,13 +100,39 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
     router.refresh();
   }
 
-  async function borrar(notebook: Notebook) {
-    if (!confirm(`¿Borrar la venta de "${notebook.nombre}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
+  async function borrarDeVerdad(notebook: Notebook) {
     await fetch(`/api/notebooks/${notebook.id}`, { method: "DELETE" });
     router.refresh();
   }
+
+  function pedirBorrado(notebook: Notebook) {
+    // Si habia otra esperando, se confirma ahora para no perderla de vista.
+    if (temporizador.current) {
+      clearTimeout(temporizador.current);
+      if (porBorrar) void borrarDeVerdad(porBorrar);
+    }
+
+    setPorBorrar(notebook);
+    temporizador.current = setTimeout(() => {
+      temporizador.current = null;
+      setPorBorrar(null);
+      void borrarDeVerdad(notebook);
+    }, 6000);
+  }
+
+  function deshacerBorrado() {
+    if (temporizador.current) clearTimeout(temporizador.current);
+    temporizador.current = null;
+    setPorBorrar(null);
+  }
+
+  // Si se sale de la pantalla antes de que venza el plazo, la venta no se
+  // borra: ante la duda es mejor conservarla.
+  useEffect(() => {
+    return () => {
+      if (temporizador.current) clearTimeout(temporizador.current);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -142,7 +175,7 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
               ))}
             </div>
           )}
-          <ExportCsvButton vendidas={filas} />
+          <ExportCsvButton ventas={filas} moneda={moneda} clavePeriodo={periodo.clave} />
           <button
             type="button"
             onClick={() => setShowManual(true)}
@@ -209,7 +242,36 @@ export function GananciasView({ vendidas }: { vendidas: Notebook[] }) {
         </label>
       </div>
 
-      <TablaVentas filas={filas} moneda={moneda} onEditar={setEditTarget} onBorrar={borrar} />
+      {resumen.sinCosto > 0 && (
+        <p
+          role="status"
+          className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-warning"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden className="mt-0.5 h-4 w-4 shrink-0 fill-none stroke-current stroke-2">
+            <path
+              d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>
+            {resumen.sinCosto === 1
+              ? "1 venta sin costo cargado: se cuenta como ganancia completa, así que el margen puede estar sobreestimado."
+              : `${resumen.sinCosto} ventas sin costo cargado: se cuentan como ganancia completa, así que el margen puede estar sobreestimado.`}
+          </span>
+        </p>
+      )}
+
+      <TablaVentas
+        filas={filas}
+        moneda={moneda}
+        hayVentas={ventasPeriodo.length > 0}
+        etiquetaPeriodo={periodo.etiqueta}
+        onEditar={setEditTarget}
+        onBorrar={pedirBorrado}
+      />
+
+      {porBorrar && <AvisoDeshacer notebook={porBorrar} onDeshacer={deshacerBorrado} />}
 
       {showManual && <ManualSaleModal onClose={() => setShowManual(false)} />}
 
@@ -334,22 +396,66 @@ function Kpi({ label, valor }: { label: string; valor: string }) {
   );
 }
 
+function AvisoDeshacer({
+  notebook,
+  onDeshacer,
+}: {
+  notebook: Notebook;
+  onDeshacer: () => void;
+}) {
+  return (
+    <div
+      role="status"
+      className="fixed inset-x-4 bottom-5 z-40 mx-auto flex max-w-md items-center justify-between gap-4 rounded-xl border border-border bg-foreground px-4 py-3 text-sm text-[var(--btn-primary-text)] shadow-lg"
+    >
+      <span className="min-w-0 truncate">Borraste la venta de {notebook.nombre}</span>
+      <button
+        type="button"
+        onClick={onDeshacer}
+        className="shrink-0 rounded-full px-3 py-1.5 font-semibold underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+      >
+        Deshacer
+      </button>
+    </div>
+  );
+}
+
 function TablaVentas({
   filas,
   moneda,
+  hayVentas,
+  etiquetaPeriodo,
   onEditar,
   onBorrar,
 }: {
   filas: Notebook[];
   moneda: string;
+  hayVentas: boolean;
+  etiquetaPeriodo: string;
   onEditar: (n: Notebook) => void;
   onBorrar: (n: Notebook) => void;
 }) {
   if (filas.length === 0) {
     return (
-      <p className="card px-5 py-6 text-center text-sm text-muted">
-        No hay ventas para mostrar en este período.
-      </p>
+      <div className="card flex flex-col items-center gap-2 px-5 py-10 text-center">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-neutral-soft text-muted">
+          <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 fill-none stroke-current stroke-2">
+            <path
+              d="M3 17l6-6 4 4 8-8M21 7v6M21 7h-6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <p className="font-semibold text-foreground">
+          {hayVentas ? "Ninguna venta coincide con la búsqueda" : `Sin ventas en ${etiquetaPeriodo}`}
+        </p>
+        <p className="max-w-sm text-sm text-muted">
+          {hayVentas
+            ? "Probá con otro nombre o limpiá el buscador."
+            : "Cuando marques una publicación como vendida, o cargues una venta manual, va a aparecer acá."}
+        </p>
+      </div>
     );
   }
 
@@ -398,7 +504,10 @@ function TablaVentas({
                   </td>
                   <td className="px-4 py-3">
                     <p className="font-medium text-foreground">{n.nombre}</p>
-                    <Pill>{n.categoria}</Pill>
+                    <span className="flex flex-wrap items-center gap-1">
+                      <Pill>{n.categoria}</Pill>
+                      {sinCosto(n) && <PillSinCosto />}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-muted">
                     {n.costo ? monto(n.costo) : "—"}
@@ -464,7 +573,10 @@ function TarjetaVenta({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-semibold text-foreground">{notebook.nombre}</p>
-          <Pill>{notebook.categoria}</Pill>
+          <span className="flex flex-wrap items-center gap-1">
+            <Pill>{notebook.categoria}</Pill>
+            {sinCosto(notebook) && <PillSinCosto />}
+          </span>
         </div>
         <p className="whitespace-nowrap text-xs tabular-nums text-muted">
           {formatearFecha(notebook.vendido_en)}
@@ -545,6 +657,20 @@ function Pill({ children }: { children: React.ReactNode }) {
   return (
     <span className="mt-1 inline-flex rounded-full bg-neutral-soft px-2 py-0.5 text-[11px] font-medium text-muted">
       {children}
+    </span>
+  );
+}
+
+function PillSinCosto() {
+  return (
+    <span
+      title="Sin costo cargado: la ganancia figura completa"
+      className="mt-1 inline-flex items-center gap-1 rounded-full bg-warning-soft px-2 py-0.5 text-[11px] font-medium text-warning"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden className="h-3 w-3 fill-none stroke-current stroke-[2.5]">
+        <path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      Sin costo
     </span>
   );
 }

@@ -12,8 +12,9 @@ export default async function GananciasPage() {
     .eq("suspendida", false)
     .order("vendido_en", { ascending: false });
 
+  // Lo toma error.tsx, que muestra el estado de error con reintento.
   if (error) {
-    return <p className="text-sm text-danger">Error cargando ventas: {error.message}</p>;
+    throw new Error(`No se pudieron cargar las ventas: ${error.message}`);
   }
 
   return <GananciasView vendidas={(data ?? []) as Notebook[]} />;

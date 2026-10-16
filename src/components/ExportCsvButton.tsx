@@ -1,45 +1,80 @@
 "use client";
 
 import type { Notebook } from "@/lib/types";
-import { gananciaItem } from "@/lib/ganancias";
+import { diasHastaVender, gananciaItem, margenItem, ventaItem } from "@/lib/ganancias";
+import { formatearFecha } from "@/lib/fechas";
 
-function csvEscape(value: string | number) {
-  const str = String(value);
-  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-    return `"${str.replace(/"/g, '""')}"`;
+const SEPARADOR = ";";
+
+function celda(valor: string | number) {
+  if (typeof valor === "number") {
+    // Excel en es-AR espera coma decimal.
+    return String(valor).replace(".", ",");
   }
-  return str;
+  if (valor.includes(SEPARADOR) || valor.includes('"') || valor.includes("\n")) {
+    return `"${valor.replace(/"/g, '""')}"`;
+  }
+  return valor;
 }
 
-export function ExportCsvButton({ vendidas }: { vendidas: Notebook[] }) {
-  function handleExport() {
-    const header = ["Fecha de venta", "Nombre", "Categoría", "Moneda", "Costo", "Precio de venta", "Ganancia"];
-    const rows = vendidas.map((n) => [
-      n.vendido_en ? new Date(n.vendido_en).toLocaleDateString("es-AR") : "",
-      n.nombre,
-      n.categoria,
-      n.moneda,
-      n.costo ?? 0,
-      n.precio_venta_final ?? n.precio,
-      gananciaItem(n),
-    ]);
+export function ExportCsvButton({
+  ventas,
+  moneda,
+  clavePeriodo,
+}: {
+  ventas: Notebook[];
+  moneda: string;
+  clavePeriodo: string;
+}) {
+  function exportar() {
+    const encabezado = [
+      "Fecha de venta",
+      "Nombre",
+      "Categoría",
+      "Moneda",
+      `Costo (${moneda})`,
+      `Venta (${moneda})`,
+      `Ganancia (${moneda})`,
+      "Margen %",
+      "Días hasta vender",
+    ];
 
-    const csv = [header, ...rows].map((row) => row.map(csvEscape).join(",")).join("\n");
+    const filas = ventas.map((n) => {
+      const margen = margenItem(n);
+      const dias = diasHastaVender(n);
+      return [
+        formatearFecha(n.vendido_en),
+        n.nombre,
+        n.categoria,
+        n.moneda,
+        n.costo ?? 0,
+        ventaItem(n),
+        gananciaItem(n),
+        margen !== null ? Number(margen.toFixed(1)) : "",
+        dias !== null ? Math.round(dias) : "",
+      ];
+    });
+
+    const csv = [encabezado, ...filas]
+      .map((fila) => fila.map(celda).join(SEPARADOR))
+      .join("\r\n");
+
+    // El BOM evita que Excel rompa los acentos.
     const blob = new Blob([`﻿${csv}`], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `fd-computacion-ventas-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = `fd-ganancias-${clavePeriodo}-${moneda}.csv`;
+    enlace.click();
     URL.revokeObjectURL(url);
   }
 
   return (
     <button
       type="button"
-      onClick={handleExport}
-      disabled={vendidas.length === 0}
+      onClick={exportar}
+      disabled={ventas.length === 0}
       className="btn-secondary px-4 py-2 text-sm"
     >
       Descargar CSV
