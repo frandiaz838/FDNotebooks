@@ -65,12 +65,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <span className="text-xs text-muted">Tecnología usada, revisada y a buen precio</span>
               </span>
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <RelojHeader />
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <UserMenu />
-              </div>
+              <ThemeToggle />
+              <UserMenu />
             </div>
           </div>
         </header>

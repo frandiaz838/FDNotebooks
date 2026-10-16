@@ -4,6 +4,7 @@
   --background: #f6f7fb;
   --foreground: #0f172a;
   --muted: #555f70;
+  --muted-suave: #626d7e;
   --border: #d0d9e4;
   --card: #ffffff;
   --surface-hover: #f8fafc;
@@ -29,7 +30,7 @@
   --btn-primary-hover: #1e293b;
   /* Alto del header del sitio. El propio header lo usa como min-height, así
      que lo que se pegue debajo (el thead de Ganancias) queda alineado. */
-  --header-alto: 69px;
+  --header-alto: 73px;
   color-scheme: light;
 }
 
@@ -41,6 +42,7 @@
     --background: #0b1120;
     --foreground: #e6ebf5;
     --muted: #9fadc0;
+    --muted-suave: #aab7c9;
     --border: #2f4061;
     --card: #121a2b;
     --surface-hover: #1a2334;
@@ -70,6 +72,7 @@
   --background: #0b1120;
   --foreground: #e6ebf5;
   --muted: #9fadc0;
+  --muted-suave: #aab7c9;
   --border: #2f4061;
   --card: #121a2b;
   --surface-hover: #1a2334;
@@ -98,6 +101,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-muted-suave: var(--muted-suave);
   --color-border: var(--border);
   --color-card: var(--card);
   --color-surface-hover: var(--surface-hover);
@@ -153,8 +157,26 @@ body {
   animation: latido-dos-puntos 1s ease-in-out infinite;
 }
 
+/* Punto verde de "en vivo" sobre el ícono del reloj. */
+@keyframes pulso-en-vivo {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
+
+.punto-en-vivo {
+  animation: pulso-en-vivo 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .dos-puntos-vivos {
+  .dos-puntos-vivos,
+  .punto-en-vivo {
     animation: none;
   }
 }

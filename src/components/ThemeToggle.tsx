@@ -69,7 +69,7 @@ export function ThemeToggle() {
 
   // Hasta saber la preferencia real no hay nada que dibujar: el server no la
   // conoce y pintaría el ícono equivocado.
-  if (!tema) return <span className="h-10 w-10" />;
+  if (!tema) return <span className="h-11 w-11" />;
 
   const esOscuro = tema === "dark" || (tema === "system" && sistemaOscuro);
 

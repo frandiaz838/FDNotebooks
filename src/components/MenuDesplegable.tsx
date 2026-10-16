@@ -40,7 +40,7 @@ export function MenuDesplegable({
         aria-label={etiqueta}
         aria-haspopup="menu"
         aria-expanded={abierto}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       >
         {icono}
       </button>
